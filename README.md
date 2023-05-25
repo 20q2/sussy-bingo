@@ -1,3 +1,6 @@
+
+https://20q2.github.io/sussy-bingo/
+
 # AnimationTest
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.2.
