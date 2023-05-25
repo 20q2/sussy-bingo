@@ -1,5 +1,10 @@
 $border-color: #666;
 
+@font-face {
+    font-family: beleren;
+    src: url('../assets/beleren.woff');
+}
+
 .page-container {
     padding: 24px;
     background-color: #efefef;
@@ -174,6 +179,9 @@ $border-color: #666;
             position: absolute;
             left: 2px;
             font-size: 12px;
+            border-radius: 50%;
+            background-color: #aaaaaa;
+            font-family: beleren;
         }
     }
 
@@ -196,5 +204,11 @@ $border-color: #666;
     button {
         width: 300px;
         margin-top: 20px;
+    }
+}
+
+@media only screen and (max-width: 600px) {    
+    .mobile-hidden {
+        display: none
     }
 }
