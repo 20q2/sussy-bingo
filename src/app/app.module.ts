@@ -10,16 +10,11 @@ import { CommonModule } from '@angular/common';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { HomeComponent } from './components/home/home.component';
-
-
-
 
 @NgModule({
   declarations: [    
     AppComponent,
     ErrorPageComponent,
-    HomeComponent
   ],
   imports: [
     BrowserModule,
