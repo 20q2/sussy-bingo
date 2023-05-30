@@ -52,7 +52,14 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.ingestFile();
+    this.assignBackground();
 
+  }
+
+  assignBackground(): void {
+    const roll = Math.floor(Math.random() * 5);
+    const imagepath = `assets/${this.icons[roll]}.png`;
+    (document.querySelector('.page-container') as HTMLElement).style.background = `url(${imagepath}) no-repeat cover`;
   }
 
   navigateToNextPage() {
@@ -110,7 +117,7 @@ export class AppComponent implements OnInit {
   }
 
   collapseStats(): void  {
-    const map: {[key: string]: string[]} = {
+    const nickNameMap: {[key: string]: string[]} = {
       'Connor': ['Cumnor', 'Con', 'Connor'],
       'Andrew': ['Andrew', 'Andrew (me)', 'Golgari king', 'Steven + andrew and different points'],
       'Shipley': ['Shipley', 'Ship, inventor of rubber band', 'Ship', 'Shiply', 'Shipley to steve', 'Shiply, probably'],
@@ -123,11 +130,11 @@ export class AppComponent implements OnInit {
       'Brandon': ['Brandon']
     }
 
-    const mapKeys = Object.keys(map);
+    const nickNameKeys = Object.keys(nickNameMap);
 
     for (const personKey of this.personKeys) {
-      for (const mapKey of mapKeys) {
-        if (map[mapKey].includes(personKey)) {
+      for (const mapKey of nickNameKeys) {
+        if (nickNameMap[mapKey].map(nickname => nickname.toLocaleLowerCase()).includes(personKey.toLocaleLowerCase())) {
           if (!this.compiledPersonTotals[mapKey]) {
             this.compiledPersonTotals[mapKey] = 0;
           }
@@ -145,6 +152,8 @@ export class AppComponent implements OnInit {
     this.bingoCard = [];
     let totalQuotes = 0;
     const oddsMatrix = [];
+
+    // Gather up the total number of quotes to build a loot table
     for (const key of Object.keys(this.compiledPersonTotals)) {
       totalQuotes += this.compiledPersonTotals[key];
     }
@@ -153,7 +162,7 @@ export class AppComponent implements OnInit {
       const number = this.compiledPersonTotals[key];
       for (let i=0; i < number; i++) {
         oddsMatrix.push(key);
-      }      
+      }
     }
 
     for (let i=0; i < this.cardWidth * this.cardHeight; i++) {
