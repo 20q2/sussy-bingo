@@ -13,6 +13,7 @@ interface BingoItem {
   text: string,
   clicked: boolean,
   icon?: string
+  index?: number;
 }
 
 @Component({
@@ -45,6 +46,8 @@ export class AppComponent implements OnInit {
   clickedBingoSquared: any[] = [];
   clickedBingoSquaredIndex = 0;
 
+  nickNameMap: {[key: string]: string[]} = {};
+
   constructor(
     private router: Router,
     private http: HttpClient
@@ -57,9 +60,16 @@ export class AppComponent implements OnInit {
   }
 
   assignBackground(): void {
-    const roll = Math.floor(Math.random() * 5);
-    const imagepath = `assets/${this.icons[roll]}.png`;
-    (document.querySelector('.page-container') as HTMLElement).style.background = `url(${imagepath}) no-repeat cover`;
+    let roll = Math.floor(Math.random() * 21);
+    let imagepath = '';
+    if (roll === 20) {
+      imagepath = `assets/backgrounds/wastes.png`;
+    } else {
+      roll = roll % 5;
+      imagepath = `assets/backgrounds/${this.icons[roll]}.png`;
+    }
+    (document.querySelector('.page-container') as HTMLElement).style.backgroundImage = `url(${imagepath})`;
+    (document.querySelector('.page-container') as HTMLElement).style.backgroundSize = 'cover';
   }
 
   navigateToNextPage() {
@@ -117,11 +127,11 @@ export class AppComponent implements OnInit {
   }
 
   collapseStats(): void  {
-    const nickNameMap: {[key: string]: string[]} = {
+    this.nickNameMap = {
       'Connor': ['Cumnor', 'Con', 'Connor'],
       'Andrew': ['Andrew', 'Andrew (me)', 'Golgari king', 'Steven + andrew and different points'],
-      'Shipley': ['Shipley', 'Ship, inventor of rubber band', 'Ship', 'Shiply', 'Shipley to steve', 'Shiply, probably'],
-      'Tony': ['Tony', 'Tony 2022', 'Tony rat (in response to a banned card)'],
+      'Shipley': ['Shipley', 'Ship, inventor of rubber bands', 'Ship', 'Shiply', 'Shipley to steve', 'Shiply, probably'],
+      'Tony': ['Tony', 'Tony 2022', 'Tony rat (in response to a banned card)', '[tony]'],
       'Rumtin': ['Rumtin', 'Rumtin?!'],
       'Matty': ['Matty'],
       'Will': ['Will'],
@@ -130,11 +140,11 @@ export class AppComponent implements OnInit {
       'Brandon': ['Brandon']
     }
 
-    const nickNameKeys = Object.keys(nickNameMap);
+    const nickNameKeys = Object.keys(this.nickNameMap);
 
     for (const personKey of this.personKeys) {
       for (const mapKey of nickNameKeys) {
-        if (nickNameMap[mapKey].map(nickname => nickname.toLocaleLowerCase()).includes(personKey.toLocaleLowerCase())) {
+        if (this.nickNameMap[mapKey].map(nickname => nickname.toLocaleLowerCase()).includes(personKey.toLocaleLowerCase())) {
           if (!this.compiledPersonTotals[mapKey]) {
             this.compiledPersonTotals[mapKey] = 0;
           }
@@ -144,6 +154,15 @@ export class AppComponent implements OnInit {
     }
 
     this.compiledKeys = Object.keys(this.compiledPersonTotals);
+  }
+
+  nickNameMapContainsString(incoming: string) {
+    for(let key of Object.keys(this.nickNameMap)) {
+      if (this.nickNameMap[key].includes(incoming)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   generateCard(): void {
@@ -185,16 +204,20 @@ export class AppComponent implements OnInit {
   }
 
   onItemClick(bingoItem: BingoItem) {
-    this.clickedBingoSquaredIndex++;
-    this.rollIcon();
     bingoItem.clicked = !bingoItem.clicked;
-    bingoItem.icon = this.iconRoll;
-    this.clickedBingoSquared.push(
-      {
-        bingoItem: bingoItem,
-        number: this.clickedBingoSquaredIndex
-      }
-    );
+
+    if (bingoItem.clicked) {
+      this.clickedBingoSquaredIndex++;
+      bingoItem.index = this.clickedBingoSquaredIndex;
+      this.rollIcon();
+      bingoItem.icon = this.iconRoll;
+      this.clickedBingoSquared.push(
+        {
+          bingoItem: bingoItem,
+          number: this.clickedBingoSquaredIndex
+        }
+      );
+    }
   }
 
   rollIcon(): void {

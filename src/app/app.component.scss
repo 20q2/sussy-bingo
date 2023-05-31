@@ -5,18 +5,42 @@ $border-color: #666;
     src: url('../assets/beleren.woff');
 }
 
+.relative {
+    position: relative;
+}
+
+.index-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 1px solid #00000040;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    background-color: #ccc;
+    text-align: center;
+    vertical-align: bottom;
+    line-height: 16px;
+    font-family: 'beleren';
+}
+
 .page-container {
     padding: 24px;
-    background-color: #efefef;
-    height: 100lvh;
+    background-repeat: no-repeat;
+    background-blend-mode: overlay;
+    background-color: #aaa;
+    min-height: 100vh;
 }
 
 h1 {
     font-family: beleren;
+    font-size: 30px;
 }
 
 .game-container {
     justify-content: space-between;
+    flex-direction: row;
+    display: flex;
 }
 
 .odds-grid, .compiled-grid {
@@ -47,6 +71,16 @@ h1 {
     display: flex;
 }
 
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.flex-align-center {
+    justify-content: center;
+}
+
 .bingo-grid {
     max-width: 500px;
     display: grid;
@@ -55,6 +89,8 @@ h1 {
     box-shadow: 5px 5px 10px #00000040;
 
     border: solid 1px $border-color;
+
+    margin: 10px auto;
 
 }
 
@@ -133,7 +169,9 @@ h1 {
 }
 
 .generated-quotes {
-    
+    background-color: #ffffffcc;
+    border: solid 1px #00000020;
+
     .quote:nth-child(1) {
         font-size: 30px;
         padding: 15px;
@@ -166,7 +204,7 @@ h1 {
         margin: 10px;
         line-height: 24px;
         position: relative;
-        border-left: 1px solid grey;
+        border-left: 1px solid rgb(40, 76, 238);
 
 
         cursor: pointer;
@@ -180,7 +218,7 @@ h1 {
         }
 
         .quote-text {
-            margin-left: 10px;
+            margin-left: 20px;
         }
 
         .quote-number {
@@ -199,13 +237,26 @@ h1 {
     }
 
     .quote-author {
+        margin-left: 2px;
         animation: slideIn 0.4s ease-out;
         &.hidden {
             display: none;
         }
+    }  
+}
+
+.history-container {
+    background-color: #ffffffdd;
+    padding: 10px;
+    border-radius: 5px;
+    border: solid thin #00000040;
+    margin-top: 10px;
+
+    .index-number {
+        border: none;
+        background-color: transparent;
+        position: static;
     }
-    
-    
 }
 
 @keyframes slideIn {
@@ -220,8 +271,12 @@ h1 {
     }
 }
 
-@media only screen and (max-width: 600px) {    
+@media only screen and (max-width: 650px) {    
     .mobile-hidden {
         display: none
+    }
+
+    .game-container {
+        flex-direction: column;
     }
 }
