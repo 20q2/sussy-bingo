@@ -49,10 +49,22 @@
           </div>
         </div>
       </div>
+
+      <!-- Word Cloud -->
+      <div *ngIf="appMode === 'default' || appMode === 'cloud'">
+        <button class="cloud-init-button" mat-raised-button color="accent" (click)="loseMyselfInTheCloud()">Lose yourself in the cloud</button>
+        <app-word-cloud [ngStyle]="{display: appMode === 'cloud' ? 'inherit' : 'none'}" #wordCloud ></app-word-cloud>
+        <div *ngIf="appMode === 'cloud'">
+          <h2>Words not included on the map:</h2>
+          <div>
+            <span>{{noNoWords.join(', ')}}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Odds setction, hidden on mobile -->
-    <div class="odds-section mobile-hidden">
+    <div class="odds-section mobile-hidden" *ngIf="appMode !== 'cloud'">
       <div class="flex-row">
         <div class="compiled-grid">
           <h2>Quotes Per Author</h2>

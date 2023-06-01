@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { WordCloudComponent } from './components/word-cloud/word-cloud.component';
 
 interface Quote {
   name: string,
@@ -22,7 +23,9 @@ interface BingoItem {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-
+  @ViewChild('wordCloud')
+  wordCloud?: WordCloudComponent;
+  
   fileContents: string = '';
   quotes: Quote[] = [];
   perPerson: {[key: string]: number} = {};
@@ -47,6 +50,7 @@ export class AppComponent implements OnInit {
   clickedBingoSquaredIndex = 0;
 
   nickNameMap: {[key: string]: string[]} = {};
+  noNoWords = ['i', 'im', 'to', 'you', 'the', 'my', 'a'];
 
   constructor(
     private router: Router,
@@ -57,6 +61,42 @@ export class AppComponent implements OnInit {
     this.ingestFile();
     this.assignBackground();
 
+  }
+
+  loseMyselfInTheCloud() {
+    this.appMode = 'cloud';
+    let quotesOnly = this.quotes.map(quote => quote.quote);
+    const quoteValues: {[key: string]: number} = {};
+
+    quotesOnly.forEach(item => {
+      let array = item.split(" ").map(word => word.toLocaleLowerCase());
+      array = array.map(item => item.replace(/["',-]/g, ''));
+      array = array.filter(item => !this.noNoWords.includes(item));
+
+      array.forEach(arrayVal => {
+        if (quoteValues) {
+          if (!quoteValues[arrayVal]) {
+            quoteValues[arrayVal] = 1;
+          } else {
+            quoteValues[arrayVal]++;
+          }
+        }
+      });      
+    });
+
+    const quoteKeys = Object.keys(quoteValues);
+    const wordCloudData: {text: string, value: number}[] = [];
+    quoteKeys.forEach(key => {
+      if (quoteValues[key] !== 1) {
+        wordCloudData.push({text: key, value: quoteValues[key] * 10});
+      }
+    })        
+
+    if (this.wordCloud) {
+      this.wordCloud.data = wordCloudData;
+    }
+    (document.querySelector('.page-container') as HTMLElement).style.backgroundImage = `none`;
+    (document.querySelector('.page-container') as HTMLElement).style.backgroundColor = `white`;
   }
 
   assignBackground(): void {

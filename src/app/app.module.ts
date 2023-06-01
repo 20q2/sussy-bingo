@@ -10,11 +10,14 @@ import { CommonModule } from '@angular/common';
 import { ErrorPageComponent } from './components/error-page/error-page.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { WordCloudComponent } from './components/word-cloud/word-cloud.component';
+import { AngularD3CloudModule } from 'angular-d3-cloud';
 
 @NgModule({
   declarations: [    
     AppComponent,
     ErrorPageComponent,
+    WordCloudComponent,
   ],
   imports: [
     BrowserModule,
@@ -24,7 +27,8 @@ import { HttpClientModule } from '@angular/common/http';
     HttpClientModule,
     BrowserAnimationsModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    AngularD3CloudModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
