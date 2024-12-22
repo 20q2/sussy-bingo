@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  snsTopicArn: 'arn:aws:sns:us-east-1:123456789012:game-notifications',
+  serverUrl: 'http://your-server-url.com/api', // Replace with your backend server URL
 };
 
 /*

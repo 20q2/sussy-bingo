@@ -1,13 +1,26 @@
 <div class="page-container" >
-  <h1 (click)="appMode = 'default'" style="cursor: pointer">Sussy Bingo Night</h1>
+  <h1 (click)="returnToDefault()" style="cursor: pointer">Sussy Bingo Night</h1>
   <div class="game-container">
     
     <!-- Bingo card/quote generation section -->
     <div class="bingo-card-section" >
       
-      <!-- Bingo card mode components -->
+      <!-- Bingo card mode components (Player) -->
       <div class="grid-section" *ngIf="appMode === 'default' || appMode === 'card'">
-        <button mat-raised-button color="secondary" (click)="generateCard()">Generate bingo card</button>
+        <div class="flex-row flex-align-space-between">
+          <button mat-raised-button *ngIf="appMode === 'default'" color="primary" class="fullwidth m-b-96" (click)="generateCard()">Start Game (Player)</button>
+        </div>
+        <div class="flex-row" class="current-quote" *ngIf="appMode === 'card'">
+          <span class="index-number" *ngIf="currentQuote">{{ clickedBingoSquaredIndex+1 }}</span>
+          {{ currentQuote ? currentQuote : 'Waiting for server to launch' | dotsPipe  }}
+          <div class="flex-row possible-answers" >
+            <div *ngFor="let answer of currentQuotePossibleAnswers">{{answer}}</div>
+          </div> 
+        </div>
+        <div class="flex-row" *ngIf="!currentQuote">
+          <button mat-raised-button *ngIf="appMode === 'card'" color="secondary" class="fullwidth" (click)="generateCard()">Generate New Bingo Card</button>
+        </div>
+
         <div class="flex-column" *ngIf="bingoCard.length > 0">
 
           <!-- The bingo card is a 2d array of usually 25 items -->
@@ -15,7 +28,7 @@
             <div class="bingo-row" *ngFor="let row of bingoCard">
               <button class="bingo-column relative" *ngFor="let column of row" (click)="onItemClick(column)" [ngClass]="{'clicked': column.clicked}">
                 {{column.text}}
-                <div *ngIf="column.clicked" class="mana-icon">
+                <div *ngIf="column.clicked" class="mana-icon" [ngClass]="{'locked-in': column.lockedIn}">
                   <img [src]="'assets/' + column.icon + '.svg'"  [class]="column.icon" />
                 </div>
                 <div *ngIf="column.clicked" class="index-number">
@@ -28,9 +41,21 @@
 
           <div class="history-container flex-column" *ngIf="clickedBingoSquared.length > 0">
             <div *ngFor="let item of clickedBingoSquared">
-              <div>
-                <span class="index-number">{{item.number}} </span>
-                <span>: {{item.bingoItem.text}}</span>
+              <div class="quote" [ngStyle]="{'color': item.author ? (item.author === item.bingoItem.text ? 'green' : 'red') : 'black'}">
+                <span class="index-number">{{item.number}} </span>: <span>{{item.quote}} </span>
+              </div>
+
+              <div
+                class="my-guess"
+                [ngStyle]="{'color': item.author ? (item.author === item.bingoItem.text ? 'green' : 'red') : 'black'}"
+              >
+                <span>- {{item.bingoItem.text}}</span>
+                <span *ngIf="item.author && item.author === item.bingoItem.text"><mat-icon>done</mat-icon></span>
+                <span *ngIf="item.author && item.author !== item.bingoItem.text"><mat-icon>not_interested</mat-icon></span>
+              </div>
+              
+              <div class="author" *ngIf="item.author">
+                <span>- {{item.author}} </span>
               </div>
             </div>
           </div>
@@ -38,21 +63,33 @@
         </div>
       </div>
 
-      <!-- Quote mode components -->
+      <!-- Quote mode components (Game Master)-->
       <div class="quote-section" *ngIf="appMode === 'default' || appMode === 'quote'">
-        <button mat-raised-button color="primary" (click)="onClickGenerateQuote()">Generate quote</button>
+        <button class="mobile-hidden" *ngIf="appMode === 'default'" mat-raised-button color="secondary" (click)="onClickGenerateQuote()">Start Gamemaster</button>
+        <button *ngIf="appMode === 'quote'" mat-raised-button color="primary" class="fullwidth m-b-24" (click)="onClickGenerateQuote()">Generate quote</button>
         <div class="generated-quotes" *ngIf="displayedQuotes.length > 0">
-          <div *ngFor="let quote of displayedQuotes" class="quote flex-column" (click)="quote.nameVisible = !quote.nameVisible">
-            <div class="quote-number">{{quote.index}}</div>
-            <div class="quote-text">{{quote.quote}}</div>
-            <div class="quote-author" [ngClass]="{'hidden': !quote.nameVisible}">- {{quote.name}}</div>
+          <div *ngFor="let quote of displayedQuotes" class="quote flex-row" (click)="onShowQuoteAuthor(quote)">
+            <div class="flex-row">
+              <div class="quote-number">{{quote.index}}</div>
+              <div class="flex-column">
+                <div class="quote-text">{{quote.quote}}</div>
+                <div class="quote-author" [ngClass]="{'hidden': !quote.nameVisible}">
+                  - {{quote.name}}
+                </div>
+                <div class="flex-row" *ngIf="!quote.nameVisible">
+                  <div class="possible-name" *ngFor="let name of quote.possibleAnswers">
+                    {{ name }}
+                  </div>                  
+                </div>
+              </div>
+            </div>                        
           </div>
         </div>
       </div>
 
       <!-- Word Cloud -->
       <div *ngIf="appMode === 'default' || appMode === 'cloud'">
-        <button class="cloud-init-button" mat-raised-button color="accent" (click)="loseMyselfInTheCloud()">Lose yourself in the cloud</button>
+        <button class="mobile-hidden cloud-init-button" mat-raised-button color="accent" (click)="loseMyselfInTheCloud()">Lose yourself in the cloud</button>
         <app-word-cloud [ngStyle]="{display: appMode === 'cloud' ? 'inherit' : 'none'}" #wordCloud ></app-word-cloud>
         <div *ngIf="appMode === 'cloud'">
           <h2>Words not included on the map:</h2>
@@ -68,12 +105,12 @@
       <div class="flex-row">
         <div class="compiled-grid">
           <h2>Quotes Per Author</h2>
-          <div class="grid-cell" *ngFor="let key of compiledKeys">
+          <div class="grid-cell quote-authors" *ngFor="let key of compiledKeys">
             {{key}}: {{compiledPersonTotals[key]}}
           </div>
         </div>
 
-        <div class="compiled-grid">
+        <div class="compiled-grid" *ngIf="appMode === 'default'">
           <h2>Raw authors</h2>
           <div class="grid-cell" *ngFor="let key of personKeys">
             {{key}}:

@@ -12,12 +12,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { WordCloudComponent } from './components/word-cloud/word-cloud.component';
 import { AngularD3CloudModule } from 'angular-d3-cloud';
+import { DotsPipe } from './pipes/dots-pipe.pipe';
 
 @NgModule({
   declarations: [    
     AppComponent,
     ErrorPageComponent,
     WordCloudComponent,
+    DotsPipe
   ],
   imports: [
     BrowserModule,
