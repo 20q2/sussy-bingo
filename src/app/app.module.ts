@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { PlayerComponent } from './pages/player/player.component';
 import { HostComponent } from './pages/host/host.component';
+import { CloudComponent } from './pages/cloud/cloud.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
@@ -26,6 +27,7 @@ import { DotsPipe } from './pipes/dots-pipe.pipe';
     LandingComponent,
     PlayerComponent,
     HostComponent,
+    CloudComponent,
   ],
   imports: [
     BrowserModule,
