@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { ClientMessage, LeaderboardEntry, PlayerSummary } from '../protocol';
 import { ensureLobby, getPlayer, putPlayer, listPlayers, getQuoteRound, generateCard } from '../state';
-import { attachPlayer, getConnection } from '../connections';
+import { attachPlayer } from '../connections';
 import { sendTo, broadcastToAll } from '../broadcast';
 
 export async function handleJoin(

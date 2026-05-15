@@ -17,7 +17,7 @@ export class HostComponent implements OnInit, OnDestroy {
   private weights: { name: string; weight: number }[] = [];
   private nameRoster: string[] = [];
   private currentTruth: string | null = null;
-  private sub?: Subscription;
+  private sub = new Subscription();
   ingestReady = false;
 
   constructor(
@@ -35,8 +35,8 @@ export class HostComponent implements OnInit, OnDestroy {
 
     this.ws.connect(WS_URL);
     this.ws.onReconnect = () => this.ws.send({ type: 'host_hello' });
-    this.sub = this.ws.messages$.subscribe(msg => this.game.apply(msg));
-    this.game.state$.subscribe(s => this.state = s);
+    this.sub.add(this.ws.messages$.subscribe(msg => this.game.apply(msg)));
+    this.sub.add(this.game.state$.subscribe(s => this.state = s));
     this.ws.send({ type: 'host_hello' });
   }
 
@@ -83,5 +83,5 @@ export class HostComponent implements OnInit, OnDestroy {
     return [truth, ...decoys].sort(() => Math.random() - 0.5);
   }
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  ngOnDestroy(): void { this.sub.unsubscribe(); }
 }

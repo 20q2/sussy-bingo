@@ -14,7 +14,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   state: GameState;
   needsName = false;
   nameInput = '';
-  private sub?: Subscription;
+  private sub = new Subscription();
 
   constructor(
     private ws: WebSocketService,
@@ -25,21 +25,21 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ws.onReconnect = () => this.rejoin();
     this.ws.connect(WS_URL);
-    this.sub = this.ws.messages$.subscribe(msg => this.game.apply(msg));
+    this.sub.add(this.ws.messages$.subscribe(msg => this.game.apply(msg)));
     const cached = this.identity.snapshot();
     if (cached) {
       this.ws.send({ type: 'join', name: cached.name, playerId: cached.playerId });
     } else {
       this.needsName = true;
     }
-    this.game.state$.subscribe(s => {
+    this.sub.add(this.game.state$.subscribe(s => {
       this.state = s;
       if (s.me && !this.identity.snapshot()) {
         this.identity.save({ playerId: s.me.playerId, name: s.me.name, cardId: s.me.cardId });
       } else if (s.me && this.identity.snapshot()?.cardId !== s.me.cardId) {
         this.identity.save({ playerId: s.me.playerId, name: s.me.name, cardId: s.me.cardId });
       }
-    });
+    }));
   }
 
   submitName(): void {
@@ -58,5 +58,5 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (cached) this.ws.send({ type: 'join', name: cached.name, playerId: cached.playerId });
   }
 
-  ngOnDestroy(): void { this.sub?.unsubscribe(); }
+  ngOnDestroy(): void { this.sub.unsubscribe(); }
 }
