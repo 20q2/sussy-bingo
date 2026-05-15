@@ -103,7 +103,7 @@ export class AppComponent implements OnInit {
     this.ingestFile();
     this.assignBackground();
 
-    const wsUrl = 'wss://3i2b1n43s9.execute-api.us-east-1.amazonaws.com/production/';
+    const wsUrl = 'wss://xybej7pfk0.execute-api.us-east-1.amazonaws.com/production';
     this.webSocketService.connect(wsUrl);
 
     this.webSocketService.messages$.subscribe((response: ServerMessage) => {
