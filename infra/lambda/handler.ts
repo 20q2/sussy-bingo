@@ -5,6 +5,7 @@ import type {
 import { isClientMessage, ClientMessage } from './protocol';
 import { putConnection, deleteConnection } from './connections';
 import { handleJoin } from './handlers/join';
+import { handleHostHello } from './handlers/hostHello';
 
 export const handler = async (
   event: APIGatewayProxyWebsocketEventV2,
@@ -43,6 +44,7 @@ function parseClientMessage(raw: string): ClientMessage | null {
 async function dispatch(msg: ClientMessage, connId: string, endpoint: string): Promise<void> {
   switch (msg.type) {
     case 'join': return handleJoin(msg, connId, endpoint);
+    case 'host_hello': return handleHostHello(connId, endpoint);
     default:
       console.warn('unhandled message type', msg.type);
   }
