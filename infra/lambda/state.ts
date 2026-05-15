@@ -55,6 +55,7 @@ export interface PlayerRow {
   name: string;
   score: number;
   card: string[][] | null;
+  tokenId: string | null;
 }
 
 export async function putPlayer(cardId: string, p: PlayerRow): Promise<void> {
@@ -67,6 +68,7 @@ export async function putPlayer(cardId: string, p: PlayerRow): Promise<void> {
       name: p.name,
       score: p.score,
       card: p.card,
+      tokenId: p.tokenId,
       ttl: ttl(),
     },
   }));
@@ -83,6 +85,7 @@ export async function getPlayer(cardId: string, playerId: string): Promise<Playe
     name: res.Item.name,
     score: res.Item.score ?? 0,
     card: res.Item.card ?? null,
+    tokenId: res.Item.tokenId ?? null,
   };
 }
 
@@ -97,6 +100,7 @@ export async function listPlayers(cardId: string): Promise<PlayerRow[]> {
     name: i.name,
     score: i.score ?? 0,
     card: i.card ?? null,
+    tokenId: i.tokenId ?? null,
   }));
 }
 
