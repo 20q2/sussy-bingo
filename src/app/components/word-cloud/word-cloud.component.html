@@ -1,9 +1,16 @@
 <angular-d3-cloud
   [data]="data"
-  [width]="1500"
-  [height]="1000"
-  [padding]="5"
+  [width]="width"
+  [height]="height"
+  [padding]="3"
   font="serif"
   [rotate]="0"
   [autoFill]="true"
+  (wordMouseOver)="onWordOver($event)"
+  (wordMouseOut)="onWordOut()"
 ></angular-d3-cloud>
+
+<div *ngIf="tooltip" class="cloud-tooltip" [style.left.px]="tooltip.x" [style.top.px]="tooltip.y">
+  <span class="t-word">{{ tooltip.text }}</span>
+  <span class="t-count">said {{ tooltip.count }} {{ tooltip.count === 1 ? 'time' : 'times' }}</span>
+</div>

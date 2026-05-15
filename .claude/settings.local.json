@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n -B2 -E '^- ?\\(ME|me\\)\\\\b|- \\(ME|me\\) *$' a:/Coding/sussy-bingo/src/assets/ingest_file.txt)",
+      "Bash(grep -n -B3 -E '- ?ME *$' a:/Coding/sussy-bingo/src/assets/ingest_file.txt)",
+      "Bash(pnpm --version)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)",
+      "Bash(npx cdk *)",
+      "Bash(node -e ' *)",
+      "Bash(grep -oE 'async function z\\\\\\([^\\)]*\\\\\\)\\\\{\\(.{1,2000}\\)' infra/cdk.out/asset.ab8b3674206832b4805050739bd8281d00709b7c7011643ff07d1ad99878102a/index.js)",
+      "Bash(grep -oE 'async function u\\\\\\([^\\)]*\\\\\\)\\\\{.{0,800}' infra/cdk.out/asset.ab8b3674206832b4805050739bd8281d00709b7c7011643ff07d1ad99878102a/index.js)",
+      "Bash(timeout 8 npx wscat -c wss://xybej7pfk0.execute-api.us-east-1.amazonaws.com/production -w 1 -x '{\"action\":\"msg\",\"body\":{\"type\":\"host_hello\"}}')",
+      "Bash(npx wscat *)",
+      "Bash(timeout 8 npx --yes wscat@6 -c wss://xybej7pfk0.execute-api.us-east-1.amazonaws.com/production)",
+      "Bash(npx --yes wscat@6 -c wss://xybej7pfk0.execute-api.us-east-1.amazonaws.com/production -x '{\"action\":\"msg\",\"body\":{\"type\":\"host_hello\"}}' --wait 4)",
+      "Bash(tee /tmp/wsout.log)",
+      "Bash(echo \"--- exit $? ---\")",
+      "Read(//tmp/**)"
+    ]
+  }
+}
