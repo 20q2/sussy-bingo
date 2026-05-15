@@ -1,23 +1,45 @@
 <div class="player">
+  <header class="hdr" *ngIf="!needsName">
+    <span class="brand">SUSSY BINGO</span>
+    <span class="sb-pill" [class.live]="state.phase === 'live'" [class.lobby]="state.phase === 'lobby'">
+      {{ state.phase }}
+    </span>
+  </header>
+
   <ng-container *ngIf="needsName">
-    <h2>What's your name?</h2>
-    <input [(ngModel)]="nameInput" (keyup.enter)="submitName()" placeholder="Your name" />
-    <button (click)="submitName()" [disabled]="!nameInput.trim()">Join</button>
+    <div class="name-card sb-card">
+      <h1 class="welcome">Welcome!</h1>
+      <p class="welcome-sub">What's your name?</p>
+      <input class="name-input" [(ngModel)]="nameInput" (keyup.enter)="submitName()" placeholder="Type your name" autofocus />
+      <button class="sb-button primary full" (click)="submitName()" [disabled]="!nameInput.trim()">
+        Join Game
+      </button>
+    </div>
   </ng-container>
 
   <ng-container *ngIf="!needsName && state.phase === 'lobby'">
-    <h2>Waiting for the host to start…</h2>
-    <p>You're in as <strong>{{ state.me?.name }}</strong>.</p>
-    <h3>Players here:</h3>
-    <ul><li *ngFor="let p of state.players">{{ p.name }}</li></ul>
+    <div class="lobby sb-card">
+      <h2 class="lobby-title">Hang tight…</h2>
+      <p class="lobby-sub">You're in as <strong>{{ state.me?.name }}</strong></p>
+      <div class="lobby-divider">Players in the room</div>
+      <ul class="lobby-players">
+        <li *ngFor="let p of state.players" [class.you]="p.playerId === state.me?.playerId">
+          {{ p.name }}
+        </li>
+      </ul>
+    </div>
   </ng-container>
 
   <ng-container *ngIf="!needsName && state.phase === 'live' && state.card">
-    <div class="quote-area" *ngIf="state.currentQuote">
-      <h3>Quote #{{ state.currentQuote.index }}</h3>
-      <blockquote>{{ state.currentQuote.quote }}</blockquote>
-      <p>Possible: {{ state.currentQuote.possibleAnswers.join(', ') }}</p>
-      <p *ngIf="state.yourGuess">You guessed: <strong>{{ state.yourGuess }}</strong></p>
+    <div class="quote-area sb-card" *ngIf="state.currentQuote">
+      <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
+      <blockquote>"{{ state.currentQuote.quote }}"</blockquote>
+      <div class="possibles">
+        <span class="possible-chip" *ngFor="let a of state.currentQuote.possibleAnswers">{{ a }}</span>
+      </div>
+      <div *ngIf="state.yourGuess && !state.lastReveal" class="your-guess">
+        Locked in: <strong>{{ state.yourGuess }}</strong>
+      </div>
     </div>
 
     <div class="card-grid">
@@ -27,15 +49,25 @@
                 [class.you-guessed]="state.yourGuess === name && !state.lastReveal"
                 [class.correct]="state.lastReveal?.truth === name && state.yourGuess === name"
                 [class.incorrect]="state.lastReveal && state.yourGuess === name && state.lastReveal.truth !== name"
+                [class.is-truth]="state.lastReveal?.truth === name"
                 (click)="onSquareTap(name)">
           {{ name }}
         </button>
       </div>
     </div>
 
-    <div *ngIf="state.lastReveal" class="reveal-banner">
-      Truth: <strong>{{ state.lastReveal.truth }}</strong>
+    <div *ngIf="state.lastReveal" class="reveal-banner"
+         [class.win]="state.lastReveal.truth === state.yourGuess"
+         [class.lose]="state.lastReveal.truth !== state.yourGuess && state.yourGuess">
+      <ng-container *ngIf="state.lastReveal.truth === state.yourGuess">✅ Nailed it!</ng-container>
+      <ng-container *ngIf="state.lastReveal.truth !== state.yourGuess && state.yourGuess">❌ Nope</ng-container>
+      <ng-container *ngIf="!state.yourGuess">⏳ Missed it</ng-container>
+      <div class="reveal-truth">It was <strong>{{ state.lastReveal.truth }}</strong></div>
     </div>
-    <div class="score">Score: {{ state.me?.score }}</div>
+
+    <div class="score-bar">
+      <span class="score-label">Your score</span>
+      <span class="score-value">{{ state.me?.score ?? 0 }}</span>
+    </div>
   </ng-container>
 </div>

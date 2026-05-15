@@ -1,48 +1,61 @@
 <div class="host">
-  <header>
-    <h1>Sussy Bingo — Host</h1>
-    <div class="phase-pill">{{ state.phase }}</div>
+  <header class="hdr">
+    <h1 class="brand">SUSSY <span>BINGO</span></h1>
+    <div class="sb-pill" [class.live]="state.phase === 'live'" [class.lobby]="state.phase === 'lobby'">
+      {{ state.phase }}
+    </div>
   </header>
 
-  <main *ngIf="ingestReady; else loading">
-    <section class="left">
+  <main *ngIf="ingestReady; else loading" class="main">
+    <section class="stage sb-card">
       <ng-container *ngIf="state.phase === 'lobby'">
-        <h2>Players ({{ state.players.length }})</h2>
+        <div class="lobby-hero">
+          <h2 class="lobby-title">Waiting for players</h2>
+          <p class="lobby-sub">{{ state.players.length }} {{ state.players.length === 1 ? 'player has' : 'players have' }} joined</p>
+        </div>
         <ul class="player-tiles">
-          <li *ngFor="let p of state.players">{{ p.name }}</li>
-          <li *ngIf="!state.players.length" class="placeholder">Waiting for players to join…</li>
+          <li *ngFor="let p of state.players" class="player-tile">{{ p.name }}</li>
+          <li *ngIf="!state.players.length" class="placeholder">Open <strong>/play</strong> on your phone to join…</li>
         </ul>
-        <button class="primary" (click)="startCard()" [disabled]="!state.players.length">Start Game</button>
+        <div class="lobby-actions">
+          <button class="sb-button primary" (click)="startCard()" [disabled]="!state.players.length">
+            ▶&nbsp; Start Game
+          </button>
+        </div>
       </ng-container>
 
       <ng-container *ngIf="state.phase === 'live'">
         <ng-container *ngIf="state.currentQuote; else noQuote">
-          <h2>Quote #{{ state.currentQuote.index }}</h2>
-          <blockquote class="big">{{ state.currentQuote.quote }}</blockquote>
+          <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
+          <blockquote class="big-quote">"{{ state.currentQuote.quote }}"</blockquote>
           <ul class="possible-answers">
-            <li *ngFor="let a of state.currentQuote.possibleAnswers">{{ a }}</li>
+            <li *ngFor="let a of state.currentQuote.possibleAnswers" class="answer-chip">{{ a }}</li>
           </ul>
           <div *ngIf="state.lastReveal && state.lastReveal.index === state.currentQuote.index" class="truth-banner">
-            Truth: <strong>{{ state.lastReveal.truth }}</strong>
+            The truth: <strong>{{ state.lastReveal.truth }}</strong>
           </div>
         </ng-container>
         <ng-template #noQuote>
-          <p class="hint">Click "Next Quote" to begin.</p>
+          <div class="ready-hero">
+            <h2>Ready to roll</h2>
+            <p>Hit <strong>Next Quote</strong> when everyone's settled.</p>
+          </div>
         </ng-template>
 
         <div class="controls">
-          <button class="primary" (click)="nextQuote()">Next Quote</button>
-          <button class="primary" (click)="reveal()">Reveal</button>
-          <button (click)="newCard()">New Card</button>
-          <button class="danger" (click)="endGame()">End Game</button>
+          <button class="sb-button primary" (click)="nextQuote()">⏭&nbsp; Next Quote</button>
+          <button class="sb-button secondary" (click)="reveal()">👁&nbsp; Reveal</button>
+          <button class="sb-button ghost" (click)="newCard()">🔁&nbsp; New Card</button>
+          <button class="sb-button danger" (click)="endGame()">⏹&nbsp; End Game</button>
         </div>
       </ng-container>
     </section>
 
-    <aside class="leaderboard">
-      <h3>Leaderboard</h3>
-      <ol>
-        <li *ngFor="let row of state.leaderboard">
+    <aside class="leaderboard sb-card">
+      <h3 class="leaderboard-title">Leaderboard</h3>
+      <ol class="leaderboard-list">
+        <li *ngFor="let row of state.leaderboard; let i = index" class="leaderboard-row" [class.first]="i === 0">
+          <span class="rank">{{ i + 1 }}</span>
           <span class="name">{{ row.name }}</span>
           <span class="score">{{ row.score }}</span>
         </li>
@@ -51,5 +64,7 @@
     </aside>
   </main>
 
-  <ng-template #loading><p>Loading quote pool…</p></ng-template>
+  <ng-template #loading>
+    <div class="loading"><div class="spinner"></div><p>Loading quote pool…</p></div>
+  </ng-template>
 </div>

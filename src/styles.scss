@@ -1,3 +1,97 @@
+/* ===== Sussy Bingo theme ===== */
+
+:root {
+  --bg-deep: #0e1027;
+  --bg-card: #1c2042;
+  --bg-card-2: #262a55;
+  --border: #3a3f73;
+  --text-bright: #fefae0;
+  --text-dim: #a8acd1;
+  --accent-yellow: #ffd166;
+  --accent-green: #06d6a0;
+  --accent-red: #ef476f;
+  --accent-blue: #4cc9f0;
+  --accent-purple: #b18aff;
+  --accent-orange: #ff8c42;
+}
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-bright);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+* { box-sizing: border-box; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a { color: var(--accent-yellow); }
+
+/* Big chunky button shared across pages */
+.sb-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 1.1rem 2rem;
+  border: none;
+  border-radius: 14px;
+  color: var(--bg-deep);
+  background: var(--accent-yellow);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 12px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 80ms ease, box-shadow 80ms ease, filter 120ms ease;
+  text-decoration: none;
+}
+.sb-button:hover { filter: brightness(1.08); }
+.sb-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+.sb-button:disabled {
+  background: var(--border);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+.sb-button.primary { background: var(--accent-yellow); }
+.sb-button.secondary { background: var(--accent-blue); color: var(--bg-deep); }
+.sb-button.danger { background: var(--accent-red); color: var(--bg-deep); }
+.sb-button.ghost {
+  background: transparent;
+  color: var(--text-bright);
+  border: 2px solid var(--border);
+  box-shadow: none;
+}
+
+/* Card surface */
+.sb-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Pill */
+.sb-pill {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  background: var(--accent-purple);
+  color: var(--bg-deep);
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.sb-pill.live { background: var(--accent-green); }
+.sb-pill.lobby { background: var(--accent-yellow); }
