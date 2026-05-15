@@ -3,6 +3,11 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { ensureLobby, getCardSession, putPlayer, getPlayer, listPlayers, generateCard, deletePlayerCard } from '../state';
+import {
+  createQuoteRound, getQuoteRound, recordGuess, markRevealed,
+} from '../state';
+import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
@@ -70,5 +75,31 @@ describe('listPlayers', () => {
     const players = await listPlayers('card1');
     expect(players.length).toBe(2);
     expect(players[0].name).toBe('A');
+  });
+});
+
+describe('createQuoteRound', () => {
+  it('writes the round at QUOTE#<index>', async () => {
+    ddbMock.on(PutCommand).resolves({});
+    await createQuoteRound('card1', 1, 'q', ['a', 'b', 'c', 'd']);
+    const call = ddbMock.commandCalls(PutCommand).at(-1);
+    expect(call?.args[0].input.Item?.quote).toBe('q');
+    expect(call?.args[0].input.Item?.revealed).toBe(false);
+  });
+});
+
+describe('recordGuess', () => {
+  it('returns "ok" on a fresh guess', async () => {
+    ddbMock.on(UpdateCommand).resolves({});
+    expect(await recordGuess('card1', 1, 'p1', 'Andrew')).toBe('ok');
+  });
+  it('returns "too_late" when conditional check fails', async () => {
+    ddbMock.on(UpdateCommand).rejects(
+      new ConditionalCheckFailedException({ message: 'cond', $metadata: {} }),
+    );
+    ddbMock.on(GetCommand).resolves({
+      Item: { index: 1, quote: 'q', possibleAnswers: [], truth: 'Andrew', guesses: {}, revealed: true },
+    });
+    expect(await recordGuess('card1', 1, 'p1', 'Andrew')).toBe('too_late');
   });
 });

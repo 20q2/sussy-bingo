@@ -1,7 +1,7 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient, ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { randomUUID } from 'crypto';
-import { CARD_PK, CARD_CURRENT_SK, ttl, cardScopedPK, playerSK } from './keys';
+import { CARD_PK, CARD_CURRENT_SK, ttl, cardScopedPK, playerSK, quoteSK } from './keys';
 import { Phase, NameWeight } from './protocol';
 
 const TABLE = () => process.env.TABLE_NAME!;
@@ -129,4 +129,77 @@ export function generateCard(
     grid.push(row);
   }
   return grid;
+}
+
+export interface QuoteRound {
+  index: number;
+  quote: string;
+  possibleAnswers: string[];
+  truth: string | null;
+  guesses: Record<string, string>;
+  revealed: boolean;
+}
+
+export async function createQuoteRound(
+  cardId: string, index: number, quote: string, possibleAnswers: string[],
+): Promise<void> {
+  await ddb.send(new PutCommand({
+    TableName: TABLE(),
+    Item: {
+      PK: cardScopedPK(cardId), SK: quoteSK(index),
+      index, quote, possibleAnswers,
+      truth: null, guesses: {}, revealed: false,
+      ttl: ttl(),
+    },
+  }));
+}
+
+export async function getQuoteRound(cardId: string, index: number): Promise<QuoteRound | null> {
+  const res = await ddb.send(new GetCommand({
+    TableName: TABLE(),
+    Key: { PK: cardScopedPK(cardId), SK: quoteSK(index) },
+  }));
+  if (!res.Item) return null;
+  return {
+    index: res.Item.index,
+    quote: res.Item.quote,
+    possibleAnswers: res.Item.possibleAnswers ?? [],
+    truth: res.Item.truth ?? null,
+    guesses: res.Item.guesses ?? {},
+    revealed: res.Item.revealed ?? false,
+  };
+}
+
+export async function recordGuess(
+  cardId: string, index: number, playerId: string, guess: string,
+): Promise<'ok' | 'too_late' | 'unknown_quote'> {
+  try {
+    await ddb.send(new UpdateCommand({
+      TableName: TABLE(),
+      Key: { PK: cardScopedPK(cardId), SK: quoteSK(index) },
+      UpdateExpression: 'SET guesses.#pid = :g',
+      ConditionExpression: 'attribute_exists(SK) AND revealed = :false',
+      ExpressionAttributeNames: { '#pid': playerId },
+      ExpressionAttributeValues: { ':g': guess, ':false': false },
+    }));
+    return 'ok';
+  } catch (err) {
+    if (err instanceof ConditionalCheckFailedException) {
+      // Could be revealed=true OR missing row. Distinguish:
+      const round = await getQuoteRound(cardId, index);
+      return round ? 'too_late' : 'unknown_quote';
+    }
+    throw err;
+  }
+}
+
+export async function markRevealed(
+  cardId: string, index: number, truth: string,
+): Promise<void> {
+  await ddb.send(new UpdateCommand({
+    TableName: TABLE(),
+    Key: { PK: cardScopedPK(cardId), SK: quoteSK(index) },
+    UpdateExpression: 'SET truth = :t, revealed = :true',
+    ExpressionAttributeValues: { ':t': truth, ':true': true },
+  }));
 }
