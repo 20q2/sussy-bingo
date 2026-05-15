@@ -8,6 +8,7 @@ import { handleJoin } from './handlers/join';
 import { handleHostHello } from './handlers/hostHello';
 import { handleStartCard } from './handlers/startCard';
 import { handleNextQuote } from './handlers/nextQuote';
+import { handleGuess } from './handlers/guess';
 
 export const handler = async (
   event: APIGatewayProxyWebsocketEventV2,
@@ -49,6 +50,7 @@ async function dispatch(msg: ClientMessage, connId: string, endpoint: string): P
     case 'host_hello': return handleHostHello(connId, endpoint);
     case 'start_card': return handleStartCard(msg, connId, endpoint);
     case 'next_quote': return handleNextQuote(msg, connId, endpoint);
+    case 'guess': return handleGuess(msg, connId, endpoint);
     default:
       console.warn('unhandled message type', msg.type);
   }
