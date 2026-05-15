@@ -1,0 +1,55 @@
+<div class="host">
+  <header>
+    <h1>Sussy Bingo — Host</h1>
+    <div class="phase-pill">{{ state.phase }}</div>
+  </header>
+
+  <main *ngIf="ingestReady; else loading">
+    <section class="left">
+      <ng-container *ngIf="state.phase === 'lobby'">
+        <h2>Players ({{ state.players.length }})</h2>
+        <ul class="player-tiles">
+          <li *ngFor="let p of state.players">{{ p.name }}</li>
+          <li *ngIf="!state.players.length" class="placeholder">Waiting for players to join…</li>
+        </ul>
+        <button class="primary" (click)="startCard()" [disabled]="!state.players.length">Start Game</button>
+      </ng-container>
+
+      <ng-container *ngIf="state.phase === 'live'">
+        <ng-container *ngIf="state.currentQuote; else noQuote">
+          <h2>Quote #{{ state.currentQuote.index }}</h2>
+          <blockquote class="big">{{ state.currentQuote.quote }}</blockquote>
+          <ul class="possible-answers">
+            <li *ngFor="let a of state.currentQuote.possibleAnswers">{{ a }}</li>
+          </ul>
+          <div *ngIf="state.lastReveal && state.lastReveal.index === state.currentQuote.index" class="truth-banner">
+            Truth: <strong>{{ state.lastReveal.truth }}</strong>
+          </div>
+        </ng-container>
+        <ng-template #noQuote>
+          <p class="hint">Click "Next Quote" to begin.</p>
+        </ng-template>
+
+        <div class="controls">
+          <button class="primary" (click)="nextQuote()">Next Quote</button>
+          <button class="primary" (click)="reveal()">Reveal</button>
+          <button (click)="newCard()">New Card</button>
+          <button class="danger" (click)="endGame()">End Game</button>
+        </div>
+      </ng-container>
+    </section>
+
+    <aside class="leaderboard">
+      <h3>Leaderboard</h3>
+      <ol>
+        <li *ngFor="let row of state.leaderboard">
+          <span class="name">{{ row.name }}</span>
+          <span class="score">{{ row.score }}</span>
+        </li>
+        <li *ngIf="!state.leaderboard.length" class="placeholder">No scores yet</li>
+      </ol>
+    </aside>
+  </main>
+
+  <ng-template #loading><p>Loading quote pool…</p></ng-template>
+</div>
