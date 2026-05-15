@@ -3,6 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LandingComponent } from './pages/landing/landing.component';
+import { PlayerComponent } from './pages/player/player.component';
+import { HostComponent } from './pages/host/host.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
@@ -15,11 +18,14 @@ import { AngularD3CloudModule } from 'angular-d3-cloud';
 import { DotsPipe } from './pipes/dots-pipe.pipe';
 
 @NgModule({
-  declarations: [    
+  declarations: [
     AppComponent,
     ErrorPageComponent,
     WordCloudComponent,
-    DotsPipe
+    DotsPipe,
+    LandingComponent,
+    PlayerComponent,
+    HostComponent,
   ],
   imports: [
     BrowserModule,
