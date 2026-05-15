@@ -1,13 +1,24 @@
 <div class="host">
   <header class="hdr">
     <h1 class="brand">SUSSY <span>BINGO</span></h1>
-    <div class="sb-pill" [class.live]="state.phase === 'live'" [class.lobby]="state.phase === 'lobby'">
-      {{ state.phase }}
+    <div class="sb-pill"
+         [class.live]="state.phase === 'live'"
+         [class.lobby]="state.phase === 'lobby'"
+         [class.unknown]="state.phase === 'unknown'">
+      {{ state.phase === 'unknown' ? 'connecting' : state.phase }}
     </div>
   </header>
 
   <main *ngIf="ingestReady; else loading" class="main">
     <section class="stage sb-card">
+      <ng-container *ngIf="state.phase === 'unknown'">
+        <div class="connecting-hero">
+          <div class="spinner big"></div>
+          <h2 class="lobby-title">Connecting to the room…</h2>
+          <p class="lobby-sub">If this hangs, check the browser console for WebSocket errors.</p>
+        </div>
+      </ng-container>
+
       <ng-container *ngIf="state.phase === 'lobby'">
         <div class="lobby-hero">
           <h2 class="lobby-title">Waiting for players</h2>

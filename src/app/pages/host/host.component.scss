@@ -91,10 +91,14 @@
 .placeholder {
   color: var(--text-dim);
   font-style: italic;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   text-align: center;
   grid-column: 1 / -1;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
 }
+.leaderboard .placeholder { border: none; padding: 1rem 0; }
 
 .lobby-actions { text-align: center; }
 
@@ -196,7 +200,21 @@
 }
 .leaderboard-row.first .rank { color: var(--accent-yellow); }
 
-/* Loading */
+/* Connecting / loading */
+.connecting-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  padding: 2rem;
+}
+.connecting-hero .lobby-title {
+  font-size: 2rem;
+  margin: 0.5rem 0 0;
+}
 .loading { text-align: center; padding: 4rem 0; color: var(--text-dim); }
 .spinner {
   width: 40px; height: 40px; margin: 0 auto 1rem;
@@ -205,6 +223,7 @@
   border-radius: 50%;
   animation: spin 800ms linear infinite;
 }
+.spinner.big { width: 64px; height: 64px; border-width: 5px; margin: 0 auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 900px) {
