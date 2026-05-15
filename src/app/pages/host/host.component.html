@@ -1,11 +1,17 @@
 <div class="host">
   <header class="hdr">
     <a routerLink="/" class="brand-link"><h1 class="brand">SUSSY <span>BINGO</span></h1></a>
-    <div class="sb-pill"
-         [class.live]="state.phase === 'live'"
-         [class.lobby]="state.phase === 'lobby'"
-         [class.unknown]="state.phase === 'unknown'">
-      {{ state.phase === 'unknown' ? 'connecting' : state.phase }}
+    <div class="hdr-right">
+      <div class="sb-pill"
+           [class.live]="state.phase === 'live'"
+           [class.lobby]="state.phase === 'lobby'"
+           [class.unknown]="state.phase === 'unknown'">
+        {{ state.phase === 'unknown' ? 'connecting' : state.phase }}
+      </div>
+      <div class="session-controls" *ngIf="state.phase === 'live'">
+        <button class="icon-btn" (click)="newCard()" title="New card (rerolls everyone)">↻ New Card</button>
+        <button class="icon-btn danger" (click)="endGameRequest()" title="End game (back to lobby)">⏹ End Game</button>
+      </div>
     </div>
   </header>
 
@@ -30,7 +36,7 @@
         </ul>
         <div class="lobby-actions">
           <button class="sb-button primary" (click)="startCard()" [disabled]="!state.players.length">
-            ▶&nbsp; Start Game
+            ▶ Start Game
           </button>
         </div>
       </ng-container>
@@ -38,26 +44,40 @@
       <ng-container *ngIf="state.phase === 'live'">
         <ng-container *ngIf="state.currentQuote; else noQuote">
           <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
-          <blockquote class="big-quote">"{{ state.currentQuote.quote }}"</blockquote>
-          <ul class="possible-answers">
-            <li *ngFor="let a of state.currentQuote.possibleAnswers" class="answer-chip">{{ a }}</li>
-          </ul>
-          <div *ngIf="state.lastReveal && state.lastReveal.index === state.currentQuote.index" class="truth-banner">
-            The truth: <strong>{{ state.lastReveal.truth }}</strong>
+          <blockquote class="big-quote">{{ state.currentQuote.quote }}</blockquote>
+
+          <div class="answers-grid" [class.is-revealed]="isRevealed">
+            <div class="answer-card"
+                 *ngFor="let a of state.currentQuote.possibleAnswers"
+                 [class.truth]="isRevealed && state.lastReveal!.truth === a"
+                 [class.wrong]="isRevealed && state.lastReveal!.truth !== a">
+              <div class="answer-name">{{ a }}</div>
+              <ul class="guessers" *ngIf="isRevealed">
+                <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">{{ g.name }}</li>
+                <li *ngIf="!guessersFor(a).length" class="no-guess">—</li>
+              </ul>
+            </div>
+          </div>
+
+          <div *ngIf="isRevealed" class="truth-banner">
+            <span class="truth-label">The truth</span>
+            <span class="truth-name">{{ state.lastReveal!.truth }}</span>
           </div>
         </ng-container>
         <ng-template #noQuote>
           <div class="ready-hero">
-            <h2>Ready to roll</h2>
-            <p>Hit <strong>Next Quote</strong> when everyone's settled.</p>
+            <h2 class="lobby-title">Ready to roll</h2>
+            <p class="lobby-sub">Hit Next Quote when everyone's settled in.</p>
           </div>
         </ng-template>
 
-        <div class="controls">
-          <button class="sb-button primary" (click)="nextQuote()">⏭&nbsp; Next Quote</button>
-          <button class="sb-button secondary" (click)="reveal()">👁&nbsp; Reveal</button>
-          <button class="sb-button ghost" (click)="newCard()">🔁&nbsp; New Card</button>
-          <button class="sb-button danger" (click)="endGame()">⏹&nbsp; End Game</button>
+        <div class="primary-action">
+          <button *ngIf="canAdvance" class="sb-button primary big" (click)="nextQuote()">
+            ⏭ Next Quote
+          </button>
+          <button *ngIf="canReveal" class="sb-button secondary big" (click)="reveal()">
+            👁 Reveal Answer
+          </button>
         </div>
       </ng-container>
     </section>
@@ -65,17 +85,33 @@
     <aside class="leaderboard sb-card">
       <h3 class="leaderboard-title">Leaderboard</h3>
       <ol class="leaderboard-list">
-        <li *ngFor="let row of state.leaderboard; let i = index" class="leaderboard-row" [class.first]="i === 0">
-          <span class="rank">{{ i + 1 }}</span>
+        <li *ngFor="let row of displayLeaderboard; let i = index"
+            class="leaderboard-row"
+            [class.first]="i === 0 && row.score > 0">
+          <span class="rank">{{ i === 0 && row.score > 0 ? '🏆' : (i + 1) }}</span>
           <span class="name">{{ row.name }}</span>
-          <span class="score">{{ row.score }}</span>
+          <span class="score-block">
+            <span class="delta" *ngIf="recentlyScored.has(row.playerId)">+1</span>
+            <span class="score">{{ row.score }}</span>
+          </span>
         </li>
-        <li *ngIf="!state.leaderboard.length" class="placeholder">No scores yet</li>
+        <li *ngIf="!displayLeaderboard.length" class="placeholder">No scores yet</li>
       </ol>
     </aside>
   </main>
 
+  <div class="modal" *ngIf="endGameConfirming" (click)="endGameCancel()">
+    <div class="modal-card sb-card" (click)="$event.stopPropagation()">
+      <h2 class="lobby-title">End the game?</h2>
+      <p class="lobby-sub">Players go back to the lobby and scores reset.</p>
+      <div class="modal-actions">
+        <button class="sb-button ghost" (click)="endGameCancel()">Cancel</button>
+        <button class="sb-button danger" (click)="endGameConfirm()">End Game</button>
+      </div>
+    </div>
+  </div>
+
   <ng-template #loading>
-    <div class="loading"><div class="spinner"></div><p>Loading quote pool…</p></div>
+    <div class="loading"><div class="spinner big"></div><p>Loading quote pool…</p></div>
   </ng-template>
 </div>

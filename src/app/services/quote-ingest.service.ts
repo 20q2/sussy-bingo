@@ -35,7 +35,8 @@ export class QuoteIngestService {
       const rawName = m[2].trim();
       const canonical = this.canonicalize(rawName);
       if (!canonical) continue;
-      quotes.push({ quote: m[1], rawName, canonicalName: canonical });
+      const cleaned = m[1].replace(/^[“"]+|[”"]+$/g, '').trim();
+      quotes.push({ quote: cleaned, rawName, canonicalName: canonical });
       totals[canonical] = (totals[canonical] ?? 0) + 1;
     }
     const weights = Object.entries(totals)

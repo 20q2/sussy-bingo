@@ -4,13 +4,14 @@ import { WebSocketService } from '../../services/web-socket.service';
 import { GameStateService, GameState } from '../../services/game-state.service';
 import { QuoteIngestService, IngestQuote } from '../../services/quote-ingest.service';
 import { WS_URL } from '../../config';
+import { LeaderboardEntry } from '../../models/protocol';
 
 @Component({
   selector: 'app-host',
   templateUrl: './host.component.html',
   styleUrls: ['./host.component.scss'],
 })
-export class HostComponent implements OnInit, OnDestroy {
+export class HostComponent implements OnDestroy, OnInit {
   state: GameState;
   private quotes: IngestQuote[] = [];
   private quotesUsed = new Set<number>();
@@ -19,6 +20,11 @@ export class HostComponent implements OnInit, OnDestroy {
   private currentTruth: string | null = null;
   private sub = new Subscription();
   ingestReady = false;
+  endGameConfirming = false;
+  /** Player IDs that scored on the most recent reveal (for +1 badges). */
+  recentlyScored = new Set<string>();
+  private deltaTimer?: ReturnType<typeof setTimeout>;
+  private lastSeenRevealIndex: number | null = null;
 
   constructor(
     private ws: WebSocketService,
@@ -36,13 +42,57 @@ export class HostComponent implements OnInit, OnDestroy {
     this.ws.connect(WS_URL);
     this.ws.onReconnect = () => this.ws.send({ type: 'host_hello' });
     this.sub.add(this.ws.messages$.subscribe(msg => this.game.apply(msg)));
-    this.sub.add(this.game.state$.subscribe(s => this.state = s));
+    this.sub.add(this.game.state$.subscribe(s => this.onState(s)));
     this.ws.send({ type: 'host_hello' });
+  }
+
+  private onState(s: GameState): void {
+    this.state = s;
+    // When a new reveal arrives, capture which players scored on it
+    if (s.lastReveal && s.lastReveal.index !== this.lastSeenRevealIndex) {
+      this.lastSeenRevealIndex = s.lastReveal.index;
+      this.recentlyScored = new Set(s.lastReveal.perPlayer.filter(p => p.correct).map(p => p.playerId));
+      if (this.deltaTimer) clearTimeout(this.deltaTimer);
+      this.deltaTimer = setTimeout(() => { this.recentlyScored = new Set(); }, 4500);
+    }
+  }
+
+  /** Leaderboard with stale duplicate entries collapsed to the best score per name. */
+  get displayLeaderboard(): LeaderboardEntry[] {
+    const byName = new Map<string, LeaderboardEntry>();
+    for (const row of this.state.leaderboard) {
+      const existing = byName.get(row.name);
+      if (!existing || row.score > existing.score) byName.set(row.name, row);
+    }
+    return [...byName.values()].sort((a, b) => b.score - a.score);
+  }
+
+  /** Per-answer breakdown for the current revealed round. */
+  guessersFor(answer: string): { name: string; correct: boolean }[] {
+    const reveal = this.state.lastReveal;
+    if (!reveal || reveal.index !== this.state.currentQuote?.index) return [];
+    return reveal.perPlayer
+      .filter(p => p.guess === answer)
+      .map(p => ({ name: p.name, correct: p.correct }));
+  }
+
+  get isRevealed(): boolean {
+    return !!this.state.lastReveal && this.state.lastReveal.index === this.state.currentQuote?.index;
+  }
+
+  get canReveal(): boolean {
+    return !!this.state.currentQuote && !this.isRevealed && !!this.currentTruth;
+  }
+
+  get canAdvance(): boolean {
+    return !this.state.currentQuote || this.isRevealed;
   }
 
   startCard(): void {
     this.quotesUsed.clear();
     this.currentTruth = null;
+    this.lastSeenRevealIndex = null;
+    this.recentlyScored = new Set();
     this.ws.send({ type: 'start_card', weights: this.weights });
   }
 
@@ -62,7 +112,12 @@ export class HostComponent implements OnInit, OnDestroy {
     this.currentTruth = null;
   }
 
-  endGame(): void { this.ws.send({ type: 'end_game' }); }
+  endGameRequest(): void { this.endGameConfirming = true; }
+  endGameCancel(): void { this.endGameConfirming = false; }
+  endGameConfirm(): void {
+    this.endGameConfirming = false;
+    this.ws.send({ type: 'end_game' });
+  }
 
   private pickUnusedQuote(): IngestQuote | null {
     const remaining = this.quotes.filter((_, i) => !this.quotesUsed.has(i));
@@ -83,5 +138,8 @@ export class HostComponent implements OnInit, OnDestroy {
     return [truth, ...decoys].sort(() => Math.random() - 0.5);
   }
 
-  ngOnDestroy(): void { this.sub.unsubscribe(); }
+  ngOnDestroy(): void {
+    if (this.deltaTimer) clearTimeout(this.deltaTimer);
+    this.sub.unsubscribe();
+  }
 }
