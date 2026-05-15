@@ -20,7 +20,7 @@ export async function handleJoin(
     if (session.phase === 'live' && session.weights) {
       card = generateCard(session.weights, 5, 5);
     }
-    player = { playerId, name: msg.name, score: 0, card };
+    player = { playerId, name: msg.name, score: 0, card, tokenId: null };
     await putPlayer(session.cardId, player);
   } else if (player.name !== msg.name) {
     player = { ...player, name: msg.name };
@@ -34,7 +34,7 @@ export async function handleJoin(
   const leaderboard: LeaderboardEntry[] = players
     .map(p => ({ playerId: p.playerId, name: p.name, score: p.score }))
     .sort((a, b) => b.score - a.score);
-  const summaries: PlayerSummary[] = players.map(p => ({ playerId: p.playerId, name: p.name }));
+  const summaries: PlayerSummary[] = players.map(p => ({ playerId: p.playerId, name: p.name, tokenId: p.tokenId }));
 
   let currentQuote = null;
   let yourGuess: string | null = null;

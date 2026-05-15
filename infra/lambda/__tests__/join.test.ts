@@ -24,3 +24,26 @@ it('issues a new playerId when none provided, creates lobby if missing, broadcas
   expect(types).toContain('joined');
   expect(types).toContain('lobby_update');
 });
+
+it('includes tokenId: null in PlayerSummary for newly joining player', async () => {
+  ddbMock.on(GetCommand).resolves({ Item: undefined }); // no session, no existing player
+  ddbMock.on(PutCommand).resolves({});
+  // listPlayers returns a new player row with tokenId: null
+  ddbMock.on(QueryCommand).resolves({
+    Items: [{ connectionId: 'c1', playerId: 'pNew', name: 'Andrew', score: 0, card: null, tokenId: null }],
+  });
+  apiMock.on(PostToConnectionCommand).resolves({});
+
+  await handleJoin({ type: 'join', name: 'Andrew' }, 'c1', 'https://x/prod');
+
+  const posts = apiMock.commandCalls(PostToConnectionCommand);
+  const bodies = posts.map(p => JSON.parse(p.args[0].input.Data!.toString()));
+
+  const joined = bodies.find((b: any) => b.type === 'joined');
+  expect(joined).toBeDefined();
+  expect(joined.players[0]).toHaveProperty('tokenId', null);
+
+  const lobbyUpdate = bodies.find((b: any) => b.type === 'lobby_update');
+  expect(lobbyUpdate).toBeDefined();
+  expect(lobbyUpdate.players[0]).toHaveProperty('tokenId', null);
+});

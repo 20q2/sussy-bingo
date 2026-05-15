@@ -11,7 +11,7 @@ export async function handleHostHello(connectionId: string, endpoint: string): P
   const leaderboard: LeaderboardEntry[] = players
     .map(p => ({ playerId: p.playerId, name: p.name, score: p.score }))
     .sort((a, b) => b.score - a.score);
-  const summaries: PlayerSummary[] = players.map(p => ({ playerId: p.playerId, name: p.name }));
+  const summaries: PlayerSummary[] = players.map(p => ({ playerId: p.playerId, name: p.name, tokenId: p.tokenId }));
 
   let currentQuote = null;
   if (session.phase === 'live' && session.currentQuoteIndex > 0) {
