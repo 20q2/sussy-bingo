@@ -18,12 +18,17 @@
 }
 .brand {
   margin: 0;
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
+  font-family: 'Beleren', 'Roboto', serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   color: var(--accent-yellow);
 }
 .brand span { color: var(--accent-purple); }
+.lobby-title, .leaderboard-title, .ready-hero h2 {
+  font-family: 'Beleren', 'Roboto', serif;
+  font-weight: 400;
+}
 
 .main {
   display: grid;

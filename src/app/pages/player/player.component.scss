@@ -18,10 +18,15 @@
   padding: 0.25rem 0 1rem;
 }
 .brand {
-  font-weight: 900;
-  letter-spacing: 0.1em;
+  font-family: 'Beleren', 'Roboto', serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   color: var(--accent-yellow);
-  font-size: 1rem;
+  font-size: 1.25rem;
+}
+.welcome, .lobby-title {
+  font-family: 'Beleren', 'Roboto', serif;
+  font-weight: 400;
 }
 
 /* Name entry */
