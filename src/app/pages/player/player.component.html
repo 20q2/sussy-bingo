@@ -17,6 +17,14 @@
     </div>
   </ng-container>
 
+  <ng-container *ngIf="!needsName && state.phase === 'unknown'">
+    <div class="connecting sb-card">
+      <div class="spinner"></div>
+      <h2 class="connecting-title">Connecting…</h2>
+      <p class="connecting-sub">Joining the room</p>
+    </div>
+  </ng-container>
+
   <ng-container *ngIf="!needsName && state.phase === 'lobby'">
     <div class="lobby sb-card">
       <h2 class="lobby-title">Hang tight…</h2>
