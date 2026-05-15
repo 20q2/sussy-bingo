@@ -1,0 +1,41 @@
+<div class="player">
+  <ng-container *ngIf="needsName">
+    <h2>What's your name?</h2>
+    <input [(ngModel)]="nameInput" (keyup.enter)="submitName()" placeholder="Your name" />
+    <button (click)="submitName()" [disabled]="!nameInput.trim()">Join</button>
+  </ng-container>
+
+  <ng-container *ngIf="!needsName && state.phase === 'lobby'">
+    <h2>Waiting for the host to start…</h2>
+    <p>You're in as <strong>{{ state.me?.name }}</strong>.</p>
+    <h3>Players here:</h3>
+    <ul><li *ngFor="let p of state.players">{{ p.name }}</li></ul>
+  </ng-container>
+
+  <ng-container *ngIf="!needsName && state.phase === 'live' && state.card">
+    <div class="quote-area" *ngIf="state.currentQuote">
+      <h3>Quote #{{ state.currentQuote.index }}</h3>
+      <blockquote>{{ state.currentQuote.quote }}</blockquote>
+      <p>Possible: {{ state.currentQuote.possibleAnswers.join(', ') }}</p>
+      <p *ngIf="state.yourGuess">You guessed: <strong>{{ state.yourGuess }}</strong></p>
+    </div>
+
+    <div class="card-grid">
+      <div class="row" *ngFor="let row of state.card">
+        <button class="cell"
+                *ngFor="let name of row"
+                [class.you-guessed]="state.yourGuess === name && !state.lastReveal"
+                [class.correct]="state.lastReveal?.truth === name && state.yourGuess === name"
+                [class.incorrect]="state.lastReveal && state.yourGuess === name && state.lastReveal.truth !== name"
+                (click)="onSquareTap(name)">
+          {{ name }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="state.lastReveal" class="reveal-banner">
+      Truth: <strong>{{ state.lastReveal.truth }}</strong>
+    </div>
+    <div class="score">Score: {{ state.me?.score }}</div>
+  </ng-container>
+</div>
