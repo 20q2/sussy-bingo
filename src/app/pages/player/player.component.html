@@ -1,4 +1,4 @@
-<div class="player">
+<div class="player" [style.background-image]="'linear-gradient(rgba(14,16,39,0.78), rgba(14,16,39,0.92)), url(' + backgroundUrl + ')'">
   <header class="hdr" *ngIf="!needsName">
     <span class="brand">SUSSY BINGO</span>
     <span class="sb-pill" [class.live]="state.phase === 'live'" [class.lobby]="state.phase === 'lobby'">

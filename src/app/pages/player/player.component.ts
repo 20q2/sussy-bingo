@@ -14,7 +14,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
   state: GameState;
   needsName = false;
   nameInput = '';
+  backgroundUrl = '';
   private sub = new Subscription();
+  private static readonly LANDS = ['forest', 'island', 'mountain', 'plains', 'swamp'];
 
   constructor(
     private ws: WebSocketService,
@@ -23,6 +25,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ) { this.state = game.snapshot(); }
 
   ngOnInit(): void {
+    this.backgroundUrl = this.pickBackground();
     this.ws.onReconnect = () => this.rejoin();
     this.ws.connect(WS_URL);
     this.sub.add(this.ws.messages$.subscribe(msg => this.game.apply(msg)));
@@ -56,6 +59,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private rejoin(): void {
     const cached = this.identity.snapshot();
     if (cached) this.ws.send({ type: 'join', name: cached.name, playerId: cached.playerId });
+  }
+
+  private pickBackground(): string {
+    const roll = Math.floor(Math.random() * 21);
+    const name = roll === 20 ? 'wastes' : PlayerComponent.LANDS[roll % PlayerComponent.LANDS.length];
+    return `assets/backgrounds/${name}.png`;
   }
 
   ngOnDestroy(): void { this.sub.unsubscribe(); }
