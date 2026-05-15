@@ -32,6 +32,7 @@ describe('WebSocketService', () => {
     FakeSocket.instances[0].open();
     expect(FakeSocket.instances[0].sent.length).toBe(1);
     const payload = JSON.parse(FakeSocket.instances[0].sent[0]);
+    expect(payload.action).toBe('msg');
     expect(payload.body.type).toBe('host_hello');
   });
 

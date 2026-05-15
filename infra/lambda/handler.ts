@@ -15,12 +15,18 @@ import { handleEndGame } from './handlers/endGame';
 export const handler = async (
   event: APIGatewayProxyWebsocketEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
+  console.log('INVOKE', JSON.stringify({
+    routeKey: event.requestContext?.routeKey,
+    connectionId: event.requestContext?.connectionId,
+    body: event.body,
+  }));
   const { routeKey, connectionId, domainName, stage } = event.requestContext;
   const endpoint = `https://${domainName}/${stage}`;
 
   try {
     if (routeKey === '$connect') {
       await putConnection(connectionId);
+      console.log('CONNECT_OK', connectionId);
       return { statusCode: 200, body: 'connected' };
     }
     if (routeKey === '$disconnect') {
@@ -29,11 +35,16 @@ export const handler = async (
     }
     // $default
     const msg = parseClientMessage(event.body ?? '');
-    if (!msg) return { statusCode: 200, body: 'bad-message' };
+    if (!msg) {
+      console.log('BAD_MESSAGE', event.body);
+      return { statusCode: 200, body: 'bad-message' };
+    }
+    console.log('DISPATCH', msg.type);
     await dispatch(msg, connectionId, endpoint);
+    console.log('DISPATCH_OK', msg.type);
     return { statusCode: 200, body: 'ok' };
   } catch (err) {
-    console.error('handler error', { routeKey, connectionId, err });
+    console.error('handler error', { routeKey, connectionId, err: err instanceof Error ? { name: err.name, message: err.message, stack: err.stack } : err });
     return { statusCode: 200, body: 'error-logged' };
   }
 };

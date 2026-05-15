@@ -27,7 +27,7 @@ export class WebSocketService {
 
   send(message: ClientMessage): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify({ body: message }));
+      this.socket.send(JSON.stringify({ action: 'msg', body: message }));
     } else {
       this.queue.push(message);
     }
@@ -44,7 +44,7 @@ export class WebSocketService {
       const wasReconnect = !this.isFirstConnect;
       this.isFirstConnect = false;
       while (this.queue.length) {
-        this.socket!.send(JSON.stringify({ body: this.queue.shift() }));
+        this.socket!.send(JSON.stringify({ action: 'msg', body: this.queue.shift() }));
       }
       if (wasReconnect && this.onReconnect) this.onReconnect();
     };
