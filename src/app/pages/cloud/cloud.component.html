@@ -1,4 +1,18 @@
-<div class="page-container">
-  <app-word-cloud #wordCloud></app-word-cloud>
-  <a routerLink="/" class="back">Back to Home</a>
+<div class="cloud-page">
+  <div class="bg-glow"></div>
+
+  <header class="cloud-header">
+    <a routerLink="/" class="sb-button secondary back">← Home</a>
+    <div class="title-block">
+      <h1 class="title">The Quote Cloud</h1>
+      <p class="tagline" *ngIf="data.length">
+        {{ data.length }} words said more than once
+      </p>
+    </div>
+    <span class="spacer"></span>
+  </header>
+
+  <div class="cloud-stage">
+    <app-word-cloud [data]="data" [heightOffset]="120"></app-word-cloud>
+  </div>
 </div>

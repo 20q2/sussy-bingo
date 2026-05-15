@@ -16,6 +16,8 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
 }
+.brand-link { text-decoration: none; display: inline-block; transition: transform 120ms ease; }
+.brand-link:hover { transform: translateY(-1px); }
 .brand {
   margin: 0;
   font-family: 'Beleren', 'Roboto', serif;
@@ -23,6 +25,7 @@
   font-weight: 400;
   letter-spacing: 0.04em;
   color: var(--accent-yellow);
+  cursor: pointer;
 }
 .brand span { color: var(--accent-purple); }
 .lobby-title, .leaderboard-title, .ready-hero h2 {
