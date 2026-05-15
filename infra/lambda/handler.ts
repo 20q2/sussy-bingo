@@ -4,6 +4,7 @@ import type {
 } from 'aws-lambda';
 import { isClientMessage, ClientMessage } from './protocol';
 import { putConnection, deleteConnection } from './connections';
+import { handleJoin } from './handlers/join';
 
 export const handler = async (
   event: APIGatewayProxyWebsocketEventV2,
@@ -39,6 +40,10 @@ function parseClientMessage(raw: string): ClientMessage | null {
   } catch { return null; }
 }
 
-async function dispatch(_msg: ClientMessage, _connId: string, _endpoint: string): Promise<void> {
-  // Filled in by Tasks 9–15.
+async function dispatch(msg: ClientMessage, connId: string, endpoint: string): Promise<void> {
+  switch (msg.type) {
+    case 'join': return handleJoin(msg, connId, endpoint);
+    default:
+      console.warn('unhandled message type', msg.type);
+  }
 }
