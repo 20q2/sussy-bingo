@@ -11,9 +11,10 @@ export class SussyBingoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const connectionsTable = new dynamodb.Table(this, 'Connections', {
-      tableName: 'sussy-bingo-connections',
-      partitionKey: { name: 'connectionId', type: dynamodb.AttributeType.STRING },
+    const stateTable = new dynamodb.Table(this, 'GameState', {
+      tableName: 'sussy-bingo-state',
+      partitionKey: { name: 'PK', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'SK', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: 'ttl',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -21,12 +22,12 @@ export class SussyBingoStack extends cdk.Stack {
 
     const handlerFn = new nodejs.NodejsFunction(this, 'WebSocketHandler', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      entry: path.join(__dirname, '..', 'lambda', 'websocket-handler.ts'),
+      entry: path.join(__dirname, '..', 'lambda', 'handler.ts'),
       handler: 'handler',
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
       environment: {
-        TABLE_NAME: connectionsTable.tableName,
+        TABLE_NAME: stateTable.tableName,
       },
       bundling: {
         minify: true,
@@ -34,7 +35,7 @@ export class SussyBingoStack extends cdk.Stack {
       },
     });
 
-    connectionsTable.grantReadWriteData(handlerFn);
+    stateTable.grantReadWriteData(handlerFn);
 
     const integration = new integrations.WebSocketLambdaIntegration(
       'HandlerIntegration',
