@@ -11,6 +11,7 @@ import { handleNextQuote } from './handlers/nextQuote';
 import { handleGuess } from './handlers/guess';
 import { handleReveal } from './handlers/reveal';
 import { handleEndGame } from './handlers/endGame';
+import { handlePickToken } from './handlers/pickToken';
 
 export const handler = async (
   event: APIGatewayProxyWebsocketEventV2,
@@ -66,6 +67,7 @@ async function dispatch(msg: ClientMessage, connId: string, endpoint: string): P
     case 'guess': return handleGuess(msg, connId, endpoint);
     case 'reveal': return handleReveal(msg, connId, endpoint);
     case 'end_game': return handleEndGame(connId, endpoint);
+    case 'pick_token': return handlePickToken(msg, connId, endpoint);
     default:
       console.warn('unhandled message type', msg.type);
   }
