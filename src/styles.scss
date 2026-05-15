@@ -68,7 +68,6 @@ a { color: var(--accent-yellow); }
 .sb-button:disabled {
   background: var(--border);
   color: var(--text-dim);
-  cursor: not-allowed;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
 }
 .sb-button.primary { background: var(--accent-yellow); }
