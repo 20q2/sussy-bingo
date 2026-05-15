@@ -5,6 +5,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
 
 export class SussyBingoStack extends cdk.Stack {
@@ -57,6 +58,15 @@ export class SussyBingoStack extends cdk.Stack {
 
     // Allow the Lambda to call back via @connections/*
     api.grantManageConnections(handlerFn);
+
+    // CDK's WebSocketLambdaIntegration only grants invoke permission for one
+    // route ARN pattern. Explicitly grant API Gateway permission to invoke the
+    // Lambda for *every* route on this API ($connect, $disconnect, $default).
+    handlerFn.addPermission('ApiGatewayInvokeAllRoutes', {
+      principal: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+      action: 'lambda:InvokeFunction',
+      sourceArn: `arn:aws:execute-api:${this.region}:${this.account}:${api.apiId}/*/*`,
+    });
 
     new cdk.CfnOutput(this, 'WebSocketUrl', {
       value: stage.url,
