@@ -8,7 +8,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "deploy": "ng deploy --base-href=https://20q2.github.io/sussy-bingo/"
+    "deploy": "ng deploy --base-href=https://20q2.github.io/sussy-bingo/",
+    "fetch-tokens": "ts-node --project tools/tsconfig.json tools/fetch-tokens.ts"
   },
   "private": true,
   "dependencies": {
@@ -47,6 +48,7 @@
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "ts-node": "^10.9.2",
     "typescript": "~4.5.2"
   }
 }
