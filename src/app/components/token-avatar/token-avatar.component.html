@@ -1,0 +1,6 @@
+<div class="avatar" [class.size-sm]="size === 'sm'" [class.size-md]="size === 'md'" [class.size-lg]="size === 'lg'">
+  <img *ngIf="token; else placeholder" class="avatar-img" [src]="token.artCropUrl" [alt]="token.name" />
+  <ng-template #placeholder>
+    <div class="avatar-placeholder" aria-label="No avatar selected">?</div>
+  </ng-template>
+</div>
