@@ -604,3 +604,38 @@
   .leaderboard { position: static; }
   .answers-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== Lobby QR ===== */
+.lobby-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.25rem auto 0.25rem;
+}
+.lobby-qr-canvas {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 6px 0 var(--ink);
+  padding: 12px;
+  /* Keep the canvas at its intrinsic 220px so the QR stays crisp */
+  width: 220px;
+  height: 220px;
+  box-sizing: content-box;
+}
+.lobby-qr-caption {
+  margin: 0;
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  opacity: 0.85;
+  text-align: center;
+}
+.lobby-qr-caption strong {
+  font-family: 'JetBrains Mono', 'Menlo', monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
