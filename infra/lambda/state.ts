@@ -127,18 +127,41 @@ export function generateCard(
 ): string[][] {
   const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0);
   if (totalWeight <= 0) throw new Error('weights total to zero');
-  const pickOne = (): string => {
-    let roll = rand() * totalWeight;
-    for (const { name, weight } of weights) {
+
+  // Center bias: rare names (low quote count) get a multiplier boost as cells
+  // get closer to the middle of the board. Picking a center cell becomes a
+  // "go out on a limb" play — the name there is statistically unlikely to
+  // be the speaker, but locking it pays off harder.
+  const maxW = Math.max(...weights.map(w => w.weight));
+  const minW = Math.min(...weights.map(w => w.weight));
+  const weightSpan = Math.max(maxW - minW, 1);
+  const cw = (width - 1) / 2;
+  const ch = (height - 1) / 2;
+  const maxRing = Math.max(cw, ch) || 1;
+  const RARITY_BOOST = 3; // up to 4x weight for the rarest name at the dead center
+
+  const pickAt = (row: number, col: number): string => {
+    // Chebyshev distance → 0 at center, maxRing at the corners
+    const d = Math.max(Math.abs(row - ch), Math.abs(col - cw));
+    const proximity = 1 - d / maxRing; // 1 at center, 0 at outer ring
+    let adjTotal = 0;
+    const adjusted = weights.map(({ name, weight }) => {
+      const rarity = 1 - (weight - minW) / weightSpan; // 1 for rarest, 0 for most common
+      const adj = weight * (1 + RARITY_BOOST * proximity * rarity);
+      adjTotal += adj;
+      return { name, weight: adj };
+    });
+    let roll = rand() * adjTotal;
+    for (const { name, weight } of adjusted) {
       roll -= weight;
       if (roll <= 0) return name;
     }
-    return weights[weights.length - 1].name;
+    return adjusted[adjusted.length - 1].name;
   };
   const grid: string[][] = [];
   for (let r = 0; r < height; r++) {
     const row: string[] = [];
-    for (let c = 0; c < width; c++) row.push(pickOne());
+    for (let c = 0; c < width; c++) row.push(pickAt(r, c));
     grid.push(row);
   }
 

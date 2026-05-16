@@ -78,6 +78,33 @@ describe('generateCard', () => {
     const valid = new Set(weights.map(w => w.name));
     expect(grid.flat().every(n => valid.has(n))).toBe(true);
   });
+
+  it('biases rare names toward the center of the card', () => {
+    // 50:1 weight ratio. Without the center bias, "Rare" would show up in the
+    // center about as often as anywhere else. With the bias, it's much more
+    // likely to land in the middle ring than the outer ring.
+    const weights = [
+      { name: 'Common', weight: 50 },
+      { name: 'Rare', weight: 1 },
+    ];
+    let mt = 1234567;
+    const rand = () => { mt = (mt * 1103515245 + 12345) & 0x7fffffff; return mt / 0x7fffffff; };
+    let centerRare = 0;
+    let outerRare = 0;
+    const SAMPLES = 200;
+    for (let i = 0; i < SAMPLES; i++) {
+      const grid = generateCard(weights, 5, 5, rand);
+      if (grid[2][2] === 'Rare') centerRare++;
+      // 'Outer' = the four corners of the 5x5 card
+      const corners = [grid[0][0], grid[0][4], grid[4][0], grid[4][4]];
+      outerRare += corners.filter(n => n === 'Rare').length;
+    }
+    // Normalize: 1 center cell vs 4 corner cells.
+    const centerRate = centerRare / SAMPLES;
+    const outerRate = outerRare / (SAMPLES * 4);
+    // Center bias should make Rare meaningfully more likely at center than at corners.
+    expect(centerRate).toBeGreaterThan(outerRate * 1.5);
+  });
 });
 
 describe('putPlayer / getPlayer', () => {
