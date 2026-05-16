@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewChecked,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { Subscription } from 'rxjs';
 import { WebSocketService } from '../../services/web-socket.service';
@@ -6,6 +13,7 @@ import { GameStateService, GameState } from '../../services/game-state.service';
 import { QuoteIngestService, IngestQuote } from '../../services/quote-ingest.service';
 import { WS_URL } from '../../config';
 import { LeaderboardEntry } from '../../models/protocol';
+import QRCode from 'qrcode';
 
 @Component({
   selector: 'app-host',
@@ -32,7 +40,7 @@ import { LeaderboardEntry } from '../../models/protocol';
     ]),
   ],
 })
-export class HostComponent implements OnDestroy, OnInit {
+export class HostComponent implements OnDestroy, OnInit, AfterViewChecked {
   state: GameState;
   private quotes: IngestQuote[] = [];
   private quotesUsed = new Set<number>();
@@ -41,6 +49,9 @@ export class HostComponent implements OnDestroy, OnInit {
   private currentTruth: string | null = null;
   private sub = new Subscription();
   ingestReady = false;
+  @ViewChild('qrCanvas') qrCanvas?: ElementRef<HTMLCanvasElement>;
+  readonly joinUrl = new URL('play', document.baseURI).toString();
+  private qrRendered = false;
   endGameConfirming = false;
   /** Player IDs that scored on the most recent reveal (for +1 badges). */
   recentlyScored = new Set<string>();
@@ -65,6 +76,21 @@ export class HostComponent implements OnDestroy, OnInit {
     this.sub.add(this.ws.messages$.subscribe(msg => this.game.apply(msg)));
     this.sub.add(this.game.state$.subscribe(s => this.onState(s)));
     this.ws.send({ type: 'host_hello' });
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.qrRendered) return;
+    const canvas = this.qrCanvas?.nativeElement;
+    if (!canvas) return;
+    this.qrRendered = true;
+    QRCode.toCanvas(canvas, this.joinUrl, {
+      width: 220,
+      margin: 1,
+      errorCorrectionLevel: 'M',
+    }).catch(err => {
+      this.qrRendered = false;
+      console.warn('[host] QR render failed', err);
+    });
   }
 
   private onState(s: GameState): void {
