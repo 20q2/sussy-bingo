@@ -38,6 +38,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     return this.state.players.find(p => p.playerId === meId)?.tokenId ?? null;
   }
 
+  /** True once the host has revealed the answer to the currently displayed quote. */
+  get isRevealed(): boolean {
+    const r = this.state.lastReveal;
+    return !!r && r.index === this.state.currentQuote?.index;
+  }
+
   ngOnInit(): void {
     this.backgroundUrl = this.pickBackground();
     this.ws.onReconnect = () => this.rejoin();

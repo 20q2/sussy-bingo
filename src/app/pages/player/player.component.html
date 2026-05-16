@@ -64,8 +64,11 @@
                 class="possible-chip"
                 *ngFor="let a of q.possibleAnswers; let i = index"
                 [style.animation-delay.ms]="60 + i * 55"
-                [class.highlighted]="highlightedName === a"
-                [class.locked]="state.yourGuess === a && !state.lastReveal"
+                [class.highlighted]="!isRevealed && highlightedName === a"
+                [class.locked]="state.yourGuess === a && !isRevealed"
+                [class.is-truth]="isRevealed && state.lastReveal!.truth === a"
+                [class.is-wrong]="isRevealed && state.lastReveal!.truth !== a && state.yourGuess === a"
+                [class.is-dim]="isRevealed && state.lastReveal!.truth !== a && state.yourGuess !== a"
                 (click)="onChipTap(a)">{{ a }}</button>
       </div>
     </div>
