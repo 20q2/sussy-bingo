@@ -1,21 +1,22 @@
 .token-picker { width: 100%; }
-.picker-title { margin: 0 0 12px; font-size: 1.1rem; }
+.picker-title { margin: 0 0 8px; font-size: 0.95rem; }
 
 .token-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 6px;
 }
 
 .token-tile {
   background: rgba(255, 255, 255, 0.04);
   border: 2px solid transparent;
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: 8px;
+  padding: 4px;
   text-align: center;
   color: inherit;
   font: inherit;
   position: relative;
+  min-width: 0;
 
   &.taken {
     opacity: 0.35;
@@ -28,9 +29,20 @@
   }
 }
 
-.token-name   { margin-top: 6px; font-size: 0.85rem; font-weight: 600; }
-.token-artist { font-size: 0.7rem; opacity: 0.7; }
+.token-name {
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .taken-by {
-  position: absolute; bottom: 4px; left: 0; right: 0;
-  font-size: 0.7rem; opacity: 0.9;
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  font-size: 0.6rem;
+  opacity: 0.9;
 }

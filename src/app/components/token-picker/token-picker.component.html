@@ -8,11 +8,10 @@
       [class.taken]="isTakenByOther(t.id)"
       [class.mine]="isMine(t.id)"
       [attr.data-token-id]="t.id"
-      [attr.aria-label]="t.name + ' by ' + t.artist"
+      [attr.aria-label]="t.name"
       (click)="onTileClick(t)">
-      <app-token-avatar [tokenId]="t.id" size="lg"></app-token-avatar>
+      <app-token-avatar [tokenId]="t.id" size="md"></app-token-avatar>
       <div class="token-name">{{ t.name }}</div>
-      <div class="token-artist">{{ t.artist }}</div>
       <div class="taken-by" *ngIf="isTakenByOther(t.id)">
         {{ ownerOf(t.id)?.name }}
       </div>

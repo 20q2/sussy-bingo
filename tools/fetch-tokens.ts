@@ -22,7 +22,7 @@ interface TokenEntry {
 
 const QUERY =
   'type:token+type:creature+frame:2015+game:paper+-is:reprint';
-const TARGET = 50;
+const TARGET = 20;
 const SLEEP_MS = 100;
 const UA = 'sussy-bingo-token-fetcher/1.0 (https://github.com/20q2/sussy-bingo)';
 
