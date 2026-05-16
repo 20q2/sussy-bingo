@@ -30,9 +30,7 @@
           <h2 class="lobby-title">Waiting for players</h2>
           <div class="lobby-qr">
             <canvas #qrCanvas class="lobby-qr-canvas" width="220" height="220"></canvas>
-            <p class="lobby-qr-caption">
-              Scan to join — or open <strong>{{ joinUrl }}</strong>
-            </p>
+            <p class="lobby-qr-caption">Scan to join</p>
           </div>
           <p class="lobby-sub">{{ state.players.length }} {{ state.players.length === 1 ? 'player has' : 'players have' }} joined</p>
         </div>
