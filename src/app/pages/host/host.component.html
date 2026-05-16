@@ -117,13 +117,15 @@
       </ng-container>
     </section>
 
-    <aside class="leaderboard sb-card">
+    <aside class="leaderboard sb-card" *ngIf="state.phase === 'live'; else preGameStats">
       <h3 class="leaderboard-title">Leaderboard</h3>
       <ol class="leaderboard-list">
         <li *ngFor="let row of displayLeaderboard; let i = index; trackBy: trackPlayerId"
             class="leaderboard-row"
-            [class.first]="i === 0 && row.score > 0">
-          <span class="rank">{{ i === 0 && row.score > 0 ? '🏆' : (i + 1) }}</span>
+            [class.first]="i === 0 && row.score > 0"
+            [class.second]="i === 1 && row.score > 0"
+            [class.third]="i === 2 && row.score > 0">
+          <span class="rank">{{ row.score > 0 ? (i === 0 ? '🏆' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1)) : (i + 1) }}</span>
           <app-token-avatar [tokenId]="tokenIdFor(row.playerId)" size="sm"></app-token-avatar>
           <span class="name">{{ row.name }}</span>
           <span class="score-block">
@@ -134,6 +136,26 @@
         <li *ngIf="!displayLeaderboard.length" class="placeholder">No scores yet</li>
       </ol>
     </aside>
+    <ng-template #preGameStats>
+      <aside class="leaderboard stats-card sb-card">
+        <h3 class="leaderboard-title">Most Quoted</h3>
+        <p class="leaderboard-sub">All-time quote counts from the channel.</p>
+        <ol class="leaderboard-list">
+          <li *ngFor="let row of topQuoters; let i = index"
+              class="leaderboard-row"
+              [class.first]="i === 0"
+              [class.second]="i === 1"
+              [class.third]="i === 2">
+            <span class="rank">{{ i === 0 ? '👑' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}</span>
+            <span class="name">{{ row.name }}</span>
+            <span class="score-block">
+              <span class="score">{{ row.weight }}</span>
+            </span>
+          </li>
+          <li *ngIf="!topQuoters.length" class="placeholder">Loading quote pool…</li>
+        </ol>
+      </aside>
+    </ng-template>
   </main>
 
   <div class="modal" *ngIf="endGameConfirming" (click)="endGameCancel()">

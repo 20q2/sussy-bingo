@@ -36,7 +36,7 @@ export class HostComponent implements OnDestroy, OnInit {
   state: GameState;
   private quotes: IngestQuote[] = [];
   private quotesUsed = new Set<number>();
-  private weights: { name: string; weight: number }[] = [];
+  weights: { name: string; weight: number }[] = [];
   private nameRoster: string[] = [];
   private currentTruth: string | null = null;
   private sub = new Subscription();
@@ -125,6 +125,12 @@ export class HostComponent implements OnDestroy, OnInit {
   /** True once a bingo has been called — game frozen until host ends/restarts. */
   get gameDecided(): boolean {
     return !!this.state.bingoWinners?.length;
+  }
+
+  /** Top N quoters from the ingest file, for the pre-game stat card that takes the
+   *  leaderboard slot while we're waiting for players. */
+  get topQuoters(): { name: string; weight: number }[] {
+    return this.weights.slice(0, 10);
   }
 
   startCard(): void {
