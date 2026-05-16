@@ -13,7 +13,7 @@
 .token-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  gap: 12px 8px;
 }
 
 .token-tile {
@@ -50,6 +50,8 @@
   box-shadow: 0 4px 0 var(--ink);
   border-radius: 50%;
 }
+/* Bump the picker avatars up from the avatar component's default 48px */
+.token-tile ::ng-deep .avatar.size-md { width: 64px; height: 64px; }
 
 @keyframes token-spring {
   0%   { transform: scale(1); }
