@@ -41,8 +41,8 @@
           <button class="sb-button primary" (click)="startCard()" [disabled]="!state.players.length">
             ▶ Start Game
           </button>
-          <button class="sb-button ghost" (click)="clearLobbyRequest()" [disabled]="!state.players.length">
-            🧹 Clear Lobby
+          <button class="sb-button subtle" (click)="clearLobbyRequest()" [disabled]="!state.players.length">
+            Clear lobby
           </button>
         </div>
       </ng-container>
@@ -69,10 +69,6 @@
             </div>
           </div>
 
-          <div *ngIf="isRevealed" class="truth-banner">
-            <span class="truth-label">The truth</span>
-            <span class="truth-name">{{ state.lastReveal!.truth }}</span>
-          </div>
         </ng-container>
         <ng-template #noQuote>
           <div class="ready-hero">

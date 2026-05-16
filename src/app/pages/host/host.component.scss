@@ -363,32 +363,6 @@
 .guessers li.no-guess { background: transparent; color: var(--text-dim); opacity: 0.5; }
 .answer-card.truth .guessers li.no-guess { color: rgba(0, 0, 0, 0.5); }
 
-/* ===== Truth banner ===== */
-.truth-banner {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  padding: 1rem 1.5rem;
-  background: rgba(6, 214, 160, 0.12);
-  border: 2px solid var(--accent-green);
-  border-radius: 14px;
-  animation: pop-in 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.truth-label {
-  color: var(--text-dim);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-.truth-name {
-  font-family: 'Beleren', 'Roboto', serif;
-  font-size: 2rem;
-  color: var(--accent-green);
-}
-
 /* ===== Primary action (single big button) ===== */
 .primary-action {
   margin-top: auto;
