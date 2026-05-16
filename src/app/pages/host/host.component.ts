@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { Subscription } from 'rxjs';
 import { WebSocketService } from '../../services/web-socket.service';
 import { GameStateService, GameState } from '../../services/game-state.service';
@@ -10,6 +11,26 @@ import { LeaderboardEntry } from '../../models/protocol';
   selector: 'app-host',
   templateUrl: './host.component.html',
   styleUrls: ['./host.component.scss'],
+  animations: [
+    trigger('quoteIn', [
+      transition('* => *', [
+        query('.quote-index, .big-quote', [
+          style({ opacity: 0, transform: 'translateY(14px)' }),
+          stagger(90, [
+            animate('360ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+              style({ opacity: 1, transform: 'translateY(0)' })),
+          ]),
+        ], { optional: true }),
+        query('.answer-card', [
+          style({ opacity: 0, transform: 'translateY(22px) scale(0.9)' }),
+          stagger(80, [
+            animate('420ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+              style({ opacity: 1, transform: 'translateY(0) scale(1)' })),
+          ]),
+        ], { optional: true }),
+      ]),
+    ]),
+  ],
 })
 export class HostComponent implements OnDestroy, OnInit {
   state: GameState;

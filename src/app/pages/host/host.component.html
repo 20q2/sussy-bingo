@@ -49,6 +49,7 @@
 
       <ng-container *ngIf="state.phase === 'live'">
         <ng-container *ngIf="state.currentQuote; else noQuote">
+          <div class="quote-stack" [@quoteIn]="state.currentQuote.index">
           <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
           <blockquote class="big-quote">{{ state.currentQuote.quote }}</blockquote>
 
@@ -68,12 +69,19 @@
               </ul>
             </div>
           </div>
+          </div>
 
         </ng-container>
         <ng-template #noQuote>
           <div class="ready-hero">
             <h2 class="lobby-title">Ready to roll</h2>
             <p class="lobby-sub">Hit Next Quote when everyone's settled in.</p>
+            <ol class="how-to-play">
+              <li><span class="step-num">1</span><span><strong>A quote pops up</strong> on your phone with four suspects. Pick who said it.</span></li>
+              <li><span class="step-num">2</span><span><strong>Tap that name on your bingo card.</strong> Your token drops onto the cell.</span></li>
+              <li><span class="step-num">3</span><span><strong>Right answer locks the cell green forever.</strong> Wrong answer? Token lifts off — no penalty, cell stays open.</span></li>
+              <li><span class="step-num">4</span><span><strong>Most locked cells when the host calls it</strong> wins.</span></li>
+            </ol>
           </div>
         </ng-template>
 
