@@ -1,8 +1,12 @@
-<div class="player" [style.background-image]="'url(' + backgroundUrl + ')'">
+<div class="player">
   <header class="hdr" *ngIf="!needsName">
     <a routerLink="/" class="brand-link"><span class="brand">SUSSY BINGO</span></a>
-    <span class="sb-pill"
-          [class.live]="state.phase === 'live'"
+    <div class="me-badge" *ngIf="state.me && state.phase === 'live'">
+      <app-token-avatar [tokenId]="myTokenId" size="sm"></app-token-avatar>
+      <span class="me-name">{{ state.me.name }}</span>
+      <span class="me-score">{{ state.me.score ?? 0 }}</span>
+    </div>
+    <span class="sb-pill" *ngIf="state.phase !== 'live'"
           [class.lobby]="state.phase === 'lobby'"
           [class.unknown]="state.phase === 'unknown'">
       {{ state.phase === 'unknown' ? 'connecting' : state.phase }}
@@ -84,7 +88,8 @@
             <app-token-avatar class="dropped"
               *ngFor="let p of placementsAt(rIdx, cIdx); trackBy: trackPlacement"
               [tokenId]="p.tokenId"
-              size="sm"></app-token-avatar>
+              size="sm"
+              [ngStyle]="chipStyle(p.playerId, rIdx, cIdx)"></app-token-avatar>
           </span>
         </button>
       </div>

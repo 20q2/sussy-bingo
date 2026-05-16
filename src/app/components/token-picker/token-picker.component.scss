@@ -1,39 +1,54 @@
+:host { --ink: #1a1330; }
+
 .token-picker { width: 100%; }
-.picker-title { margin: 0 0 8px; font-size: 0.95rem; }
+.picker-title {
+  margin: 0 0 10px;
+  font-family: 'Permanent Marker', 'Beleren', cursive;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
 
 .token-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 
 .token-tile {
-  background: rgba(255, 255, 255, 0.04);
-  border: 2px solid transparent;
+  background: transparent;
+  border: none;
   border-radius: 8px;
-  padding: 4px;
+  padding: 4px 2px 6px;
   text-align: center;
-  color: inherit;
+  color: var(--ink);
   font: inherit;
   position: relative;
   min-width: 0;
-  transform-origin: center;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+  transition: transform 80ms ease;
 
-  &:active {
-    transform: scale(0.95);
-  }
+  &:active { transform: translateY(2px); }
 
   &.taken {
     opacity: 0.35;
     filter: grayscale(0.6);
     pointer-events: none;
   }
-  &.mine {
-    border-color: #ffd166;
-    background: rgba(255, 209, 102, 0.12);
+  &.mine ::ng-deep .avatar {
+    outline-color: var(--accent-yellow);
+    box-shadow: 0 0 0 3px var(--ink), 0 5px 0 var(--ink);
     animation: token-spring 520ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+}
+
+/* Thick black outline + chunky shadow on every avatar so they read as stickers */
+.token-tile ::ng-deep .avatar {
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+  box-shadow: 0 4px 0 var(--ink);
+  border-radius: 50%;
 }
 
 @keyframes token-spring {
@@ -46,19 +61,24 @@
 }
 
 .token-name {
-  margin-top: 4px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  margin-top: 6px;
+  font-family: 'Caveat', cursive;
+  font-size: 1rem;
+  font-weight: 700;
   line-height: 1.1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--ink);
 }
 .taken-by {
   position: absolute;
-  bottom: 2px;
+  bottom: -4px;
   left: 0;
   right: 0;
-  font-size: 0.6rem;
-  opacity: 0.9;
+  font-family: 'Caveat', cursive;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.85;
 }

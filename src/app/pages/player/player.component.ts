@@ -119,6 +119,25 @@ export class PlayerComponent implements OnInit, OnDestroy {
     return out;
   }
 
+  /**
+   * Deterministic per-(player, cell) scatter so chips land in the same spot on
+   * re-render and chips dropped by different players on the same cell don't
+   * stack perfectly on top of each other.
+   */
+  chipStyle(playerId: string, row: number, col: number): { [k: string]: string } {
+    const key = `${playerId}#${row},${col}`;
+    let h = 0;
+    for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0;
+    const ox = (((h & 0xff) / 255) - 0.5) * 26;          // -13..+13 px
+    const oy = ((((h >> 8) & 0xff) / 255) - 0.5) * 26;
+    const rot = ((((h >> 16) & 0xff) / 255) - 0.5) * 50; // -25..+25 deg
+    return {
+      '--chip-ox': `${ox.toFixed(1)}px`,
+      '--chip-oy': `${oy.toFixed(1)}px`,
+      '--chip-rot': `${rot.toFixed(1)}deg`,
+    };
+  }
+
   trackPlacement(_: number, p: { playerId: string }): string { return p.playerId; }
 
   markFor(row: number, col: number): 'correct' | 'incorrect' | null {
