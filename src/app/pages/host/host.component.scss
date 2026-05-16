@@ -99,28 +99,59 @@
   font-size: 1.15rem;
 }
 .player-tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem 1.25rem;
   list-style: none;
-  padding: 0;
-  margin: 0 0 2rem;
+  padding: 1.5rem 1rem 2rem;
+  margin: 0 0 1.5rem;
   flex: 1;
+  min-height: 200px;
 }
 .player-tile {
-  padding: 1rem 1.25rem;
+  --tilt: 0deg;
+  padding: 0.85rem 1rem 0.7rem;
   background: var(--bg-card-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  font-size: 1.4rem;
-  font-weight: 600;
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  font-size: 1.05rem;
+  font-weight: 700;
   text-align: center;
-  animation: pop-in 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 0.5rem;
+  min-width: 110px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.28), 0 12px 24px rgba(0, 0, 0, 0.25);
+  rotate: var(--tilt);
+  will-change: translate;
+  animation:
+    tile-pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards,
+    tile-bob 2.6s ease-in-out 360ms infinite;
 }
-.player-tile-name { font-weight: 600; }
+.player-tile-name {
+  font-family: 'Beleren', 'Roboto', serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--text-bright);
+}
+/* Five "personalities" — staggered bob timing + slight tilts so the lobby feels alive */
+.player-tile:nth-child(5n+1) { --tilt:  0deg;   animation-duration: 360ms, 2.6s; animation-delay: 0ms,    360ms; }
+.player-tile:nth-child(5n+2) { --tilt: -2deg;   animation-duration: 360ms, 2.1s; animation-delay: 70ms,   280ms; }
+.player-tile:nth-child(5n+3) { --tilt:  1.5deg; animation-duration: 360ms, 2.9s; animation-delay: 140ms,  420ms; }
+.player-tile:nth-child(5n+4) { --tilt: -1deg;   animation-duration: 360ms, 2.3s; animation-delay: 40ms,   200ms; }
+.player-tile:nth-child(5n+5) { --tilt:  2.5deg; animation-duration: 360ms, 2.75s; animation-delay: 110ms, 380ms; }
+
+@keyframes tile-pop {
+  from { transform: scale(0.4) translateY(20px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes tile-bob {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -10px; }
+}
 @keyframes pop-in {
   from { transform: scale(0.6); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
