@@ -13,6 +13,11 @@ export class WebSocketService {
   private intentionallyClosed = false;
   onReconnect?: () => void;
   private isFirstConnect = true;
+  // API Gateway WebSocket kills idle sockets after 10 min. Ping every 4 min
+  // so a quiet stretch of gameplay (host pondering, players AFK) doesn't
+  // silently drop every client at once.
+  private static readonly PING_INTERVAL_MS = 4 * 60 * 1000;
+  private pingTimer?: ReturnType<typeof setInterval>;
 
   connect(url: string): void {
     this.url = url;
@@ -22,6 +27,7 @@ export class WebSocketService {
 
   disconnect(): void {
     this.intentionallyClosed = true;
+    this.stopPing();
     this.socket?.close();
   }
 
@@ -46,17 +52,35 @@ export class WebSocketService {
       while (this.queue.length) {
         this.socket!.send(JSON.stringify({ action: 'msg', body: this.queue.shift() }));
       }
+      this.startPing();
       if (wasReconnect && this.onReconnect) this.onReconnect();
     };
     this.socket.onmessage = (e) => {
       try { this.subject.next(JSON.parse(e.data) as ServerMessage); } catch {}
     };
     this.socket.onclose = () => {
+      this.stopPing();
       if (this.intentionallyClosed) return;
       const delay = this.retryMs;
       this.retryMs = Math.min(this.retryMs * 2, this.retryMaxMs);
       setTimeout(() => this.open(), delay);
     };
     this.socket.onerror = () => { /* let onclose drive reconnect */ };
+  }
+
+  private startPing(): void {
+    this.stopPing();
+    this.pingTimer = setInterval(() => {
+      if (this.socket?.readyState === WebSocket.OPEN) {
+        this.socket.send(JSON.stringify({ action: 'msg', body: { type: 'ping' } }));
+      }
+    }, WebSocketService.PING_INTERVAL_MS);
+  }
+
+  private stopPing(): void {
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = undefined;
+    }
   }
 }

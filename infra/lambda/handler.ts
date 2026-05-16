@@ -42,6 +42,11 @@ export const handler = async (
       console.log('BAD_MESSAGE', event.body);
       return { statusCode: 200, body: 'bad-message' };
     }
+    if (msg.type === 'ping') {
+      // No-op — exists purely so the client can keep the API Gateway idle
+      // timeout (10 min) from killing the socket between user actions.
+      return { statusCode: 200, body: 'pong' };
+    }
     console.log('DISPATCH', msg.type);
     await dispatch(msg, connectionId, endpoint);
     console.log('DISPATCH_OK', msg.type);

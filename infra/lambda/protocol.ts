@@ -13,13 +13,16 @@ export type ClientMessage =
   | { type: 'reveal'; truth: string }
   | { type: 'end_game' }
   | { type: 'pick_token'; tokenId: string | null }
-  | { type: 'clear_lobby' };
+  | { type: 'clear_lobby' }
+  | { type: 'ping' };
 
 // Server → Client
 export type ServerMessage =
   | { type: 'joined'; playerId: string; cardId: string; phase: Phase; name: string; score: number;
       card: string[][] | null; currentQuote: { index: number; quote: string; possibleAnswers: string[] } | null;
-      yourGuess: string | null; leaderboard: LeaderboardEntry[]; players: PlayerSummary[] }
+      yourGuess: string | null; leaderboard: LeaderboardEntry[]; players: PlayerSummary[];
+      lockedCells: Record<string, Array<[number, number]>>;
+      placements: Record<string, { row: number; col: number }> }
   | { type: 'host_state'; cardId: string; phase: Phase;
       currentQuote: { index: number; quote: string; possibleAnswers: string[] } | null;
       leaderboard: LeaderboardEntry[]; players: PlayerSummary[]; card: string[][] | null }

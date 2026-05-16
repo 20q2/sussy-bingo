@@ -34,12 +34,11 @@ export async function handleReveal(
     const result = perPlayer.find(x => x.playerId === p.playerId)!;
     return result.correct ? { ...p, score: p.score + 1 } : p;
   });
-  for (const updated of updatedPlayers) {
+  await Promise.all(updatedPlayers.map(updated => {
     const original = players.find(p => p.playerId === updated.playerId)!;
-    if (updated.score !== original.score) {
-      await putPlayer(session.cardId, updated);
-    }
-  }
+    if (updated.score === original.score) return Promise.resolve();
+    return putPlayer(session.cardId, updated);
+  }));
   const leaderboard: LeaderboardEntry[] = updatedPlayers
     .map(p => ({ playerId: p.playerId, name: p.name, score: p.score }))
     .sort((a, b) => b.score - a.score);

@@ -34,11 +34,16 @@ export async function handleJoin(
 
   let currentQuote = null;
   let yourGuess: string | null = null;
+  const placements: Record<string, { row: number; col: number }> = {};
   if (session.phase === 'live' && session.currentQuoteIndex > 0) {
     const round = await getQuoteRound(session.cardId, session.currentQuoteIndex);
     if (round && !round.revealed) {
       currentQuote = { index: round.index, quote: round.quote, possibleAnswers: round.possibleAnswers };
-      yourGuess = round.guesses[player.playerId] ?? null;
+      const mine = round.guesses[player.playerId];
+      yourGuess = mine ? mine.guess : null;
+      for (const [pid, rec] of Object.entries(round.guesses)) {
+        placements[pid] = { row: rec.row, col: rec.col };
+      }
     }
   }
 
@@ -54,6 +59,8 @@ export async function handleJoin(
     yourGuess,
     leaderboard,
     players: summaries,
+    lockedCells: session.lockedCells ?? {},
+    placements,
   });
 
   await broadcastToAll(endpoint, { type: 'lobby_update', players: summaries });

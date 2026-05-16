@@ -14,7 +14,12 @@ export async function sendTo(endpoint: string, connectionId: string, msg: Server
   } catch (err) {
     if (err instanceof GoneException) {
       await deleteConnection(connectionId).catch(() => {});
-    } else { throw err; }
+    } else {
+      // Don't rethrow: a transient PostToConnection failure on a direct ack
+      // shouldn't abort the rest of the handler (which usually has a broadcast
+      // queued behind it). Log and continue so other clients still see state.
+      console.error('sendTo failed', { id: connectionId, err });
+    }
   }
 }
 

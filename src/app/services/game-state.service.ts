@@ -24,6 +24,9 @@ export interface GameState {
   lastReveal: LastReveal | null;
   /** Where each player has dropped a token for the current quote, keyed by playerId. Cleared on each new quote. */
   placements: Record<string, CellPlacement>;
+  /** Per-player cumulative list of correctly-locked cells, persisted server-side
+   *  across the live phase. Survives reconnect/refresh. */
+  lockedCells: Record<string, Array<[number, number]>>;
   /** Set once the server announces a bingo (5-in-a-row). The game freezes. */
   bingoWinners: BingoWinner[] | null;
 }
@@ -31,7 +34,7 @@ export interface GameState {
 const initial: GameState = {
   phase: 'unknown', me: null, card: null, players: [], leaderboard: [],
   currentQuote: null, yourGuess: null, lastReveal: null, placements: {},
-  bingoWinners: null,
+  lockedCells: {}, bingoWinners: null,
 };
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +53,8 @@ export class GameStateService {
           me: { playerId: msg.playerId, name: msg.name, cardId: msg.cardId, score: msg.score },
           card: msg.card, players: msg.players, leaderboard: msg.leaderboard,
           currentQuote: msg.currentQuote, yourGuess: msg.yourGuess, lastReveal: null,
+          placements: msg.placements ?? {},
+          lockedCells: msg.lockedCells ?? {},
         });
         return;
       case 'host_state':
@@ -62,7 +67,7 @@ export class GameStateService {
         this.subject.next({ ...s, players: msg.players });
         return;
       case 'card_started':
-        this.subject.next({ ...s, phase: 'live', leaderboard: msg.leaderboard, card: msg.card, currentQuote: null, yourGuess: null, lastReveal: null, placements: {}, bingoWinners: null });
+        this.subject.next({ ...s, phase: 'live', leaderboard: msg.leaderboard, card: msg.card, currentQuote: null, yourGuess: null, lastReveal: null, placements: {}, lockedCells: {}, bingoWinners: null });
         return;
       case 'quote':
         this.subject.next({ ...s, currentQuote: { index: msg.index, quote: msg.quote, possibleAnswers: msg.possibleAnswers }, yourGuess: null, lastReveal: null, placements: {} });
@@ -92,17 +97,30 @@ export class GameStateService {
         for (const pid of Object.keys(s.placements)) {
           if (correctIds.has(pid)) keptPlacements[pid] = s.placements[pid];
         }
+        // Append each correct guesser's (row,col) to lockedCells so the
+        // green-square / sticky-token history is kept in shared state and
+        // survives a refresh (server hydrates it back via 'joined').
+        const lockedCells: Record<string, Array<[number, number]>> = { ...s.lockedCells };
+        for (const result of msg.perPlayer) {
+          if (!result.correct) continue;
+          const placement = s.placements[result.playerId];
+          if (!placement) continue;
+          const prior = lockedCells[result.playerId] ?? [];
+          const already = prior.some(([r, c]) => r === placement.row && c === placement.col);
+          lockedCells[result.playerId] = already ? prior : [...prior, [placement.row, placement.col]];
+        }
         this.subject.next({
           ...s,
           leaderboard: msg.leaderboard,
           lastReveal: { index: msg.index, truth: msg.truth, perPlayer: msg.perPlayer },
           placements: keptPlacements,
+          lockedCells,
           me: s.me ? { ...s.me, score: msg.leaderboard.find(l => l.playerId === s.me!.playerId)?.score ?? s.me.score } : s.me,
         });
         return;
       }
       case 'returned_to_lobby':
-        this.subject.next({ ...s, phase: 'lobby', card: null, currentQuote: null, yourGuess: null, lastReveal: null, players: msg.players, leaderboard: [], placements: {}, bingoWinners: null });
+        this.subject.next({ ...s, phase: 'lobby', card: null, currentQuote: null, yourGuess: null, lastReveal: null, players: msg.players, leaderboard: [], placements: {}, lockedCells: {}, bingoWinners: null });
         return;
       case 'bingo':
         this.subject.next({ ...s, bingoWinners: msg.winners });

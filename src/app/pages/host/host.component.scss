@@ -509,7 +509,25 @@
   opacity: 0.6;
 }
 .leaderboard-row .name { line-height: 1; }
-.score-block { display: flex; align-items: baseline; gap: 0.5rem; }
+.score-block { display: flex; align-items: center; gap: 0.5rem; }
+.score-block .answer-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  background: rgba(26, 19, 48, 0.08);
+  color: var(--ink);
+  font-family: 'Caveat', cursive;
+  font-weight: 800;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.score-block .answer-status.in {
+  background: var(--accent-green, #b6e3a5);
+}
 .score-block .score {
   font-weight: 800;
   font-size: 1.7rem;

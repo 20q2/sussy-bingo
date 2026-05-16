@@ -202,6 +202,17 @@ export class HostComponent implements OnDestroy, OnInit, AfterViewChecked {
     return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
   }
 
+  /** Whether this player has submitted a guess for the current quote. Returns
+   *  null when there's no live quote to answer (so no icon should render). */
+  answerStatus(playerId: string): boolean | null {
+    if (!this.state.currentQuote) return null;
+    if (this.isRevealed) {
+      const entry = this.state.lastReveal!.perPlayer.find(p => p.playerId === playerId);
+      return !!entry && entry.guess !== null;
+    }
+    return !!this.state.placements[playerId];
+  }
+
   trackPlayerId(_: number, p: { playerId: string }): string { return p.playerId; }
 
   /** Track answer cards by their grid position, not name. This keeps the DOM nodes

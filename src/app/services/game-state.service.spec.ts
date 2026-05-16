@@ -7,7 +7,8 @@ describe('GameStateService', () => {
 
   it('applies joined to populate identity-shaped state', () => {
     svc.apply({ type: 'joined', playerId: 'p1', cardId: 'c1', phase: 'lobby', name: 'A', score: 0,
-      card: null, currentQuote: null, yourGuess: null, leaderboard: [], players: [{ playerId: 'p1', name: 'A', tokenId: null }] });
+      card: null, currentQuote: null, yourGuess: null, leaderboard: [], players: [{ playerId: 'p1', name: 'A', tokenId: null }],
+      lockedCells: {}, placements: {} });
     const s = svc.snapshot();
     expect(s.phase).toBe('lobby');
     expect(s.me?.playerId).toBe('p1');
@@ -15,7 +16,8 @@ describe('GameStateService', () => {
 
   it('applies quote and clears yourGuess', () => {
     svc.apply({ type: 'joined', playerId: 'p1', cardId: 'c1', phase: 'live', name: 'A', score: 0,
-      card: [['x']], currentQuote: null, yourGuess: 'OLD', leaderboard: [], players: [] });
+      card: [['x']], currentQuote: null, yourGuess: 'OLD', leaderboard: [], players: [],
+      lockedCells: {}, placements: {} });
     svc.apply({ type: 'quote', index: 5, quote: 'q', possibleAnswers: ['a','b'] });
     expect(svc.snapshot().currentQuote?.index).toBe(5);
     expect(svc.snapshot().yourGuess).toBeNull();

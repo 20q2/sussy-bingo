@@ -132,6 +132,12 @@
           <app-token-avatar [tokenId]="tokenIdFor(row.playerId)" size="sm"></app-token-avatar>
           <span class="name">{{ row.name }}</span>
           <span class="score-block">
+            <span class="answer-status"
+                  *ngIf="answerStatus(row.playerId) !== null"
+                  [class.in]="answerStatus(row.playerId)"
+                  [attr.aria-label]="answerStatus(row.playerId) ? 'Answer submitted' : 'No answer yet'">
+              {{ answerStatus(row.playerId) ? '✓' : '✗' }}
+            </span>
             <span class="delta" *ngIf="recentlyScored.has(row.playerId)">+1</span>
             <span class="score">{{ row.score }}</span>
           </span>
