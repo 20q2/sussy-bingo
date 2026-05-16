@@ -58,7 +58,12 @@
       </div>
     </div>
 
-    <div class="card-grid">
+    <div class="waiting-card sb-card" *ngIf="!state.currentQuote">
+      <div class="waiting-dot"></div>
+      <span>Waiting for the next quote…</span>
+    </div>
+
+    <div class="card-grid sb-card">
       <div class="row" *ngFor="let row of state.card; let rIdx = index">
         <button class="cell"
                 *ngFor="let name of row; let cIdx = index"
