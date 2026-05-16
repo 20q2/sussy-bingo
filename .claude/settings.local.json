@@ -29,7 +29,11 @@
       "Bash(npx ng *)",
       "Bash(git -C a:/Coding/sussy-bingo-tokens log --oneline main..HEAD)",
       "Bash(git -C a:/Coding/sussy-bingo-tokens status --short)",
-      "Bash(git merge *)"
+      "Bash(git merge *)",
+      "Bash(git worktree *)",
+      "Bash(git branch *)",
+      "Bash(:)",
+      "Bash(git reset *)"
     ],
     "additionalDirectories": [
       "a:\\Coding\\sussy-bingo-tokens\\tools",
