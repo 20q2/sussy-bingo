@@ -75,6 +75,12 @@
 }
 .cta .sb-button { width: 100%; }
 
+.footer-links {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  z-index: 1;
+}
 .cloud-link {
   color: var(--text-dim);
   text-decoration: none;

@@ -1,0 +1,64 @@
+<div class="stats-page">
+  <header class="hdr">
+    <a routerLink="/" class="brand-link"><span class="brand">SUSSY <span>BINGO</span></span> <span class="page-tag">/ stats</span></a>
+  </header>
+
+  <main *ngIf="!loading; else loadingTpl" class="main">
+    <section class="summary sb-card">
+      <h2 class="title">Corpus summary</h2>
+      <dl class="kv">
+        <dt>raw text bytes</dt>          <dd>{{ rawTextLength | number }}</dd>
+        <dt>regex matches</dt>           <dd>{{ totalRawQuotes | number }}</dd>
+        <dt>kept (playable)</dt>         <dd class="ok">{{ totalQuotes | number }}</dd>
+        <dt>dropped — bad author</dt>    <dd class="warn">{{ rejectedUnknownAuthor | number }}</dd>
+        <dt>dropped — unplayable body</dt><dd class="warn">{{ filteredOut | number }}</dd>
+        <dt>distinct canonical people</dt><dd>{{ people.length | number }}</dd>
+      </dl>
+    </section>
+
+    <section class="people sb-card">
+      <h2 class="title">Per-person breakdown</h2>
+      <table class="people-table">
+        <thead>
+          <tr>
+            <th class="rank">#</th>
+            <th class="name">canonical</th>
+            <th class="count">quotes</th>
+            <th class="pct">% of corpus</th>
+            <th class="bar"></th>
+            <th class="aliases">nicknames</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of people; let i = index">
+            <td class="rank">{{ i + 1 }}</td>
+            <td class="name">{{ p.canonical }}</td>
+            <td class="count num">{{ p.count }}</td>
+            <td class="pct num">{{ p.percent | percent:'1.1-1' }}</td>
+            <td class="bar">
+              <span class="bar-fill" [style.width.%]="p.percent * 100 / (people[0].percent || 1)"></span>
+            </td>
+            <td class="aliases">
+              <code *ngFor="let a of p.aliases">{{ a }}</code>
+              <span class="muted" *ngIf="!p.aliases.length">(none)</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="samples sb-card">
+      <h2 class="title">Sample quotes per person</h2>
+      <details *ngFor="let p of people">
+        <summary><strong>{{ p.canonical }}</strong> <span class="muted">({{ p.count }} total)</span></summary>
+        <ul>
+          <li *ngFor="let q of p.sampleQuotes">"{{ q }}"</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <ng-template #loadingTpl>
+    <p class="loading">Parsing ingest file…</p>
+  </ng-template>
+</div>
