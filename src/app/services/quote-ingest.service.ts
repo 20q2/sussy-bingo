@@ -28,7 +28,10 @@ export class QuoteIngestService {
   }
 
   parse(text: string): IngestResult {
-    const regex = /([""][^"""]+[""])\s?-(.*)/g;
+    // Quote body cannot contain newlines or other quote chars. This stops a single
+    // regex match from spanning multiple Discord lines and accidentally capturing
+    // timestamps / @mentions / the next message's metadata.
+    const regex = /([“"][^"“”\n\r]+[”"])\s?-(.*)/g;
     const quotes: IngestQuote[] = [];
     const totals: Record<string, number> = {};
     for (const m of text.matchAll(regex)) {
@@ -36,6 +39,7 @@ export class QuoteIngestService {
       const canonical = this.canonicalize(rawName);
       if (!canonical) continue;
       const cleaned = m[1].replace(/^[“"]+|[”"]+$/g, '').trim();
+      if (!this.isPlayableQuote(cleaned)) continue;
       quotes.push({ quote: cleaned, rawName, canonicalName: canonical });
       totals[canonical] = (totals[canonical] ?? 0) + 1;
     }
@@ -43,6 +47,17 @@ export class QuoteIngestService {
       .map(([name, weight]) => ({ name, weight }))
       .sort((a, b) => b.weight - a.weight);
     return { quotes, weights };
+  }
+
+  /** Defensive post-filter for quotes that survived the regex but read badly on the TV. */
+  private isPlayableQuote(quote: string): boolean {
+    if (/[\r\n]/.test(quote)) return false;              // multi-line artifact
+    if (quote.length < 2 || quote.length > 280) return false;
+    if (/^\s*$/.test(quote)) return false;                // pure whitespace
+    if (!/[A-Za-z]/.test(quote)) return false;            // no letters (e.g. "...")
+    if (/\[\d{1,2}:\d{2}\s*(AM|PM)?\]/i.test(quote)) return false; // Discord timestamp
+    if (/@\S+/.test(quote)) return false;                 // contains a mention
+    return true;
   }
 
   canonicalize(rawName: string): string | null {
