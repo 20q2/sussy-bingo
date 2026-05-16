@@ -108,13 +108,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name, row, col });
   }
 
-  placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null }> {
-    const out: Array<{ playerId: string; tokenId: string | null }> = [];
+  placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number }> {
+    const out: Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number }> = [];
     for (const playerId of Object.keys(this.state.placements ?? {})) {
       const pos = this.state.placements[playerId];
       if (pos.row !== row || pos.col !== col) continue;
       const tokenId = this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
-      out.push({ playerId, tokenId });
+      const scatter = this.chipScatter(playerId, row, col);
+      out.push({ playerId, tokenId, ...scatter });
     }
     return out;
   }
@@ -123,24 +124,20 @@ export class PlayerComponent implements OnInit, OnDestroy {
    * Deterministic per-(player, cell) scatter so chips land in the same spot on
    * re-render and chips dropped by different players on the same cell don't
    * stack perfectly on top of each other.
+   *
+   * Polar placement: chips always sit on a ring 16-22px from cell center so
+   * the name underneath stays readable.
    */
-  chipStyle(playerId: string, row: number, col: number): { [k: string]: string } {
+  private chipScatter(playerId: string, row: number, col: number): { ox: number; oy: number; rot: number } {
     const key = `${playerId}#${row},${col}`;
     let h = 0;
     for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0;
-    // Polar placement — chips always sit on a ring 16-22px from cell center so
-    // the name underneath stays readable. Different angles for different
-    // playerIds keep chips from stacking when several land on the same cell.
     const angle = ((h & 0xff) / 255) * Math.PI * 2;
     const radius = 16 + (((h >> 8) & 0xff) / 255) * 6;     // 16..22 px
-    const ox = Math.cos(angle) * radius;
-    const oy = Math.sin(angle) * radius;
-    const rot = ((((h >> 16) & 0xff) / 255) - 0.5) * 50;   // -25..+25 deg
-    return {
-      '--chip-ox': `${ox.toFixed(1)}px`,
-      '--chip-oy': `${oy.toFixed(1)}px`,
-      '--chip-rot': `${rot.toFixed(1)}deg`,
-    };
+    const ox = +(Math.cos(angle) * radius).toFixed(1);
+    const oy = +(Math.sin(angle) * radius).toFixed(1);
+    const rot = +((((h >> 16) & 0xff) / 255 - 0.5) * 50).toFixed(1); // -25..+25 deg
+    return { ox, oy, rot };
   }
 
   trackPlacement(_: number, p: { playerId: string }): string { return p.playerId; }

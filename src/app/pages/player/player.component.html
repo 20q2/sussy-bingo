@@ -92,7 +92,9 @@
               *ngFor="let p of placementsAt(rIdx, cIdx); trackBy: trackPlacement"
               [tokenId]="p.tokenId"
               size="sm"
-              [ngStyle]="chipStyle(p.playerId, rIdx, cIdx)"></app-token-avatar>
+              [style.--chip-ox.px]="p.ox"
+              [style.--chip-oy.px]="p.oy"
+              [style.--chip-rot.deg]="p.rot"></app-token-avatar>
           </span>
         </button>
       </div>

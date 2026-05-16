@@ -311,7 +311,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: background 200ms ease, border-color 200ms ease, box-shadow 80ms ease, translate 80ms ease;
+  transition: background 200ms ease, border-color 200ms ease, color 220ms ease, box-shadow 80ms ease, translate 80ms ease, scale 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
   rotate: var(--tilt);
@@ -426,11 +426,13 @@
 .cell.highlighted:not(.you-guessed):not(.correct):not(.incorrect):not(.is-truth) {
   background: var(--paper-warm);
 }
-/* Cells whose name isn't one of the four current answers shrink slightly
-   so the four valid cells visually dominate. State classes override via :not(). */
+/* Cells whose name isn't one of the four current answers shrink + grey out so
+   the four valid cells dominate. Cool neutral grey blends with the gradient
+   without reading brown/puke. State classes override via :not(). */
 .cell.unavailable:not(.you-guessed):not(.correct):not(.incorrect):not(.highlighted) {
   scale: 0.82;
-  color: rgba(26, 19, 48, 0.55);
+  background: #d4d0d8;
+  color: rgba(26, 19, 48, 0.5);
 }
 
 /* Reveal banner — sticker book card */
