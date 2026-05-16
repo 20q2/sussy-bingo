@@ -44,15 +44,19 @@ export class StatsComponent implements OnInit {
     for (const m of matches) {
       const rawName = m[2].trim();
       const cleaned = m[1].replace(/^[“"]+|[”"]+$/g, '').trim();
-      const canonical = this.ingest.canonicalize(rawName);
-      if (!canonical) {
+      const canonicals = this.ingest.canonicalizeAll(rawName);
+      if (!canonicals.length) {
         this.rejectedUnknownAuthor++;
         this.badAuthorRows.push({ rawName, quote: cleaned });
         badAuthorTally.set(rawName, (badAuthorTally.get(rawName) ?? 0) + 1);
         continue;
       }
       if (!this.isPlayable(cleaned)) { this.filteredOut++; continue; }
-      kept.push({ quote: cleaned, rawName, canonicalName: canonical });
+      // Co-attribution: emit one kept entry per canonical so each person's
+      // count reflects the shared credit.
+      for (const canonical of canonicals) {
+        kept.push({ quote: cleaned, rawName, canonicalName: canonical });
+      }
     }
     this.totalQuotes = kept.length;
     this.badAuthorCounts = [...badAuthorTally.entries()]

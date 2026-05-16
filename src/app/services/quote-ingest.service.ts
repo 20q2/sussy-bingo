@@ -36,12 +36,17 @@ export class QuoteIngestService {
     const totals: Record<string, number> = {};
     for (const m of text.matchAll(regex)) {
       const rawName = m[2].trim();
-      const canonical = this.canonicalize(rawName);
-      if (!canonical) continue;
+      const canonicals = this.canonicalizeAll(rawName);
+      if (!canonicals.length) continue;
       const cleaned = m[1].replace(/^[“"]+|[”"]+$/g, '').trim();
       if (!this.isPlayableQuote(cleaned)) continue;
-      quotes.push({ quote: cleaned, rawName, canonicalName: canonical });
-      totals[canonical] = (totals[canonical] ?? 0) + 1;
+      // A shared alias (e.g. "Steven + Andrew and Different Points") credits
+      // BOTH people — emit one quote entry per canonical match so each shows
+      // up in their corpus count.
+      for (const canonical of canonicals) {
+        quotes.push({ quote: cleaned, rawName, canonicalName: canonical });
+        totals[canonical] = (totals[canonical] ?? 0) + 1;
+      }
     }
     const weights = Object.entries(totals)
       .map(([name, weight]) => ({ name, weight }))
@@ -58,14 +63,21 @@ export class QuoteIngestService {
     return true;
   }
 
+  /** First-matching canonical, kept for the few call-sites that only need one. */
   canonicalize(rawName: string): string | null {
+    return this.canonicalizeAll(rawName)[0] ?? null;
+  }
+
+  /** Every canonical name whose alias list contains the given raw name. */
+  canonicalizeAll(rawName: string): string[] {
     let name = rawName;
     if (name.endsWith('(edited)')) name = name.slice(0, -'(edited)'.length).trim();
     if (name.startsWith('- ')) name = name.slice(2);
     const lc = name.toLocaleLowerCase();
+    const out: string[] = [];
     for (const [canon, aliases] of Object.entries(this.nickNameMap)) {
-      if (aliases.some(a => a.toLocaleLowerCase() === lc)) return canon;
+      if (aliases.some(a => a.toLocaleLowerCase() === lc)) out.push(canon);
     }
-    return null;
+    return out;
   }
 }

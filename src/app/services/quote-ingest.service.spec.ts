@@ -24,6 +24,20 @@ describe('QuoteIngestService', () => {
     expect(connor?.weight).toBe(1);
   });
 
+  it('credits all canonical people when an alias is shared (co-attribution)', async () => {
+    // "Steven + Andrew and Different Points" is listed under both Andrew and
+    // Stephen in nickNameMap. A quote attributed with that alias should bump
+    // both people's counts.
+    const promise = svc.load();
+    const req = http.expectOne('assets/ingest_file.txt');
+    req.flush(`"shared one" - Steven + Andrew and Different Points\n"andrew only" - Andrew\n`);
+    const result = await promise;
+    const andrew = result.weights.find(w => w.name === 'Andrew');
+    const stephen = result.weights.find(w => w.name === 'Stephen');
+    expect(andrew?.weight).toBe(2);
+    expect(stephen?.weight).toBe(1);
+  });
+
   it('keeps both attributed quotes when separated by a timestamp line', async () => {
     // Two valid quotes posted at different points in the night with a Discord
     // timestamp marker on its own line in between. Both should be parsed.
