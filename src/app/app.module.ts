@@ -19,6 +19,7 @@ import { WordCloudComponent } from './components/word-cloud/word-cloud.component
 import { AngularD3CloudModule } from 'angular-d3-cloud';
 import { DotsPipe } from './pipes/dots-pipe.pipe';
 import { TokenAvatarComponent } from './components/token-avatar/token-avatar.component';
+import { TokenPickerComponent } from './components/token-picker/token-picker.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { TokenAvatarComponent } from './components/token-avatar/token-avatar.com
     HostComponent,
     CloudComponent,
     TokenAvatarComponent,
+    TokenPickerComponent,
   ],
   imports: [
     BrowserModule,
