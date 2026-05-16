@@ -28,6 +28,12 @@
       <ng-container *ngIf="state.phase === 'lobby'">
         <div class="lobby-hero">
           <h2 class="lobby-title">Waiting for players</h2>
+          <div class="lobby-qr">
+            <canvas #qrCanvas class="lobby-qr-canvas" width="220" height="220"></canvas>
+            <p class="lobby-qr-caption">
+              Scan to join — or open <strong>{{ joinUrl }}</strong>
+            </p>
+          </div>
           <p class="lobby-sub">{{ state.players.length }} {{ state.players.length === 1 ? 'player has' : 'players have' }} joined</p>
         </div>
         <ul class="player-tiles">
@@ -35,7 +41,6 @@
             <app-token-avatar [tokenId]="p.tokenId" size="lg"></app-token-avatar>
             <span class="player-tile-name">{{ p.name }}</span>
           </li>
-          <li *ngIf="!state.players.length" class="placeholder">Open <strong>/play</strong> on your phone to join…</li>
         </ul>
         <div class="lobby-actions">
           <button class="sb-button primary" (click)="startCard()" [disabled]="!state.players.length">
