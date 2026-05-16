@@ -19,6 +19,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
   currentPick: { row: number; col: number } | null = null;
   /** Permanent per-cell outcome history keyed by "r,c". */
   cellMarks = new Map<string, 'correct' | 'incorrect'>();
+  /** Name from the quote's possible-answer chips the player tapped to spotlight on the board. */
+  highlightedName: string | null = null;
   private lastSeenRevealIndex: number | null = null;
   private lastSeenQuoteIndex: number | null = null;
   private sub = new Subscription();
@@ -64,10 +66,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.lastSeenRevealIndex = null;
       }
 
-      // Clear the pending pick when the host moves to a new quote.
+      // Clear the pending pick and any highlight when the host moves to a new quote.
       if (s.currentQuote && s.currentQuote.index !== this.lastSeenQuoteIndex) {
         this.lastSeenQuoteIndex = s.currentQuote.index;
         this.currentPick = null;
+        this.highlightedName = null;
       }
 
       // On a fresh reveal, freeze the current pick into a permanent mark.
@@ -105,6 +108,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   isCurrentPick(row: number, col: number): boolean {
     return this.currentPick?.row === row && this.currentPick?.col === col;
+  }
+
+  onChipTap(name: string): void {
+    this.highlightedName = this.highlightedName === name ? null : name;
   }
 
   onPickToken(tokenId: string | null): void {

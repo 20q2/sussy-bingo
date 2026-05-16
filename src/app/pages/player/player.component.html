@@ -46,10 +46,12 @@
       <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
       <blockquote>"{{ state.currentQuote.quote }}"</blockquote>
       <div class="possibles">
-        <span class="possible-chip" *ngFor="let a of state.currentQuote.possibleAnswers">{{ a }}</span>
-      </div>
-      <div *ngIf="state.yourGuess && !state.lastReveal" class="your-guess">
-        Locked in: <strong>{{ state.yourGuess }}</strong>
+        <button type="button"
+                class="possible-chip"
+                *ngFor="let a of state.currentQuote.possibleAnswers"
+                [class.highlighted]="highlightedName === a"
+                [class.locked]="state.yourGuess === a && !state.lastReveal"
+                (click)="onChipTap(a)">{{ a }}</button>
       </div>
     </div>
 
@@ -61,6 +63,7 @@
                 [class.correct]="markFor(rIdx, cIdx) === 'correct'"
                 [class.incorrect]="markFor(rIdx, cIdx) === 'incorrect'"
                 [class.is-truth]="state.lastReveal?.truth === name && state.lastReveal?.index === state.currentQuote?.index"
+                [class.highlighted]="highlightedName === name"
                 (click)="onSquareTap(rIdx, cIdx, name)">
           {{ name }}
         </button>

@@ -159,12 +159,21 @@
   font-size: 0.85rem;
   border: 1px solid var(--border);
 }
-.your-guess {
-  margin-top: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: rgba(255, 209, 102, 0.15);
-  border-radius: 8px;
-  font-size: 0.95rem;
+.possible-chip {
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 80ms ease;
+}
+.possible-chip:active { transform: scale(0.96); }
+.possible-chip.highlighted {
+  background: rgba(255, 209, 102, 0.18);
+  border-color: rgba(255, 209, 102, 0.55);
+}
+.possible-chip.locked {
+  background: var(--accent-yellow);
+  color: var(--bg-deep);
+  border-color: var(--accent-yellow);
+  font-weight: 700;
 }
 
 /* Card grid */
@@ -215,6 +224,10 @@
 .cell.is-truth:not(.correct) {
   border-color: var(--accent-green);
   box-shadow: 0 0 0 2px var(--accent-green);
+}
+.cell.highlighted:not(.you-guessed):not(.correct):not(.incorrect):not(.is-truth) {
+  background: rgba(255, 209, 102, 0.15);
+  border-color: rgba(255, 209, 102, 0.55);
 }
 
 /* Reveal banner */
