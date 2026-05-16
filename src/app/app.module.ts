@@ -1,5 +1,6 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { TokensService } from './services/tokens.service';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -17,6 +18,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { WordCloudComponent } from './components/word-cloud/word-cloud.component';
 import { AngularD3CloudModule } from 'angular-d3-cloud';
 import { DotsPipe } from './pipes/dots-pipe.pipe';
+import { TokenAvatarComponent } from './components/token-avatar/token-avatar.component';
+import { TokenPickerComponent } from './components/token-picker/token-picker.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +31,8 @@ import { DotsPipe } from './pipes/dots-pipe.pipe';
     PlayerComponent,
     HostComponent,
     CloudComponent,
+    TokenAvatarComponent,
+    TokenPickerComponent,
   ],
   imports: [
     BrowserModule,
@@ -40,7 +45,14 @@ import { DotsPipe } from './pipes/dots-pipe.pipe';
     MatButtonModule,
     AngularD3CloudModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [TokensService],
+      useFactory: (svc: TokensService) => () => svc.load(),
+    },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

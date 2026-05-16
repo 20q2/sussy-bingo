@@ -2,6 +2,9 @@ import { ClientMessage, LeaderboardEntry } from '../protocol';
 import { getCardSession, writeCardSession, listPlayers, putPlayer, generateCard } from '../state';
 import { getConnection, listAllConnections } from '../connections';
 import { broadcastToAll, sendTo } from '../broadcast';
+import tokensJson from '../tokens.json';
+
+const ALL_TOKEN_IDS: string[] = (tokensJson as Array<{ id: string }>).map(t => t.id);
 
 export async function handleStartCard(
   msg: Extract<ClientMessage, { type: 'start_card' }>,
@@ -19,6 +22,24 @@ export async function handleStartCard(
   // Reset scores + regenerate cards for every existing player.
   // Track the freshly-generated cards locally so we can deliver them without re-reading.
   const players = await listPlayers(session.cardId);
+
+  // Auto-assign random unused tokens to players who have none.
+  const taken = new Set(
+    players.map(p => p.tokenId).filter((t): t is string => !!t),
+  );
+  const available = ALL_TOKEN_IDS.filter(id => !taken.has(id));
+  const shuffled = [...available];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  let nextFree = 0;
+  for (const p of players) {
+    if (p.tokenId === null && nextFree < shuffled.length) {
+      p.tokenId = shuffled[nextFree++];
+    }
+  }
+
   const newCards = new Map<string, string[][]>();
   for (const p of players) {
     const card = generateCard(msg.weights, 5, 5);

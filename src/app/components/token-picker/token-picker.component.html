@@ -1,0 +1,21 @@
+<div class="token-picker">
+  <h3 class="picker-title">Pick your avatar</h3>
+  <div class="token-grid">
+    <button
+      *ngFor="let t of tokensSvc.tokens"
+      type="button"
+      class="token-tile"
+      [class.taken]="isTakenByOther(t.id)"
+      [class.mine]="isMine(t.id)"
+      [attr.data-token-id]="t.id"
+      [attr.aria-label]="t.name + ' by ' + t.artist"
+      (click)="onTileClick(t)">
+      <app-token-avatar [tokenId]="t.id" size="lg"></app-token-avatar>
+      <div class="token-name">{{ t.name }}</div>
+      <div class="token-artist">{{ t.artist }}</div>
+      <div class="taken-by" *ngIf="isTakenByOther(t.id)">
+        {{ ownerOf(t.id)?.name }}
+      </div>
+    </button>
+  </div>
+</div>

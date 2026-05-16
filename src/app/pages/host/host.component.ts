@@ -68,12 +68,12 @@ export class HostComponent implements OnDestroy, OnInit {
   }
 
   /** Per-answer breakdown for the current revealed round. */
-  guessersFor(answer: string): { name: string; correct: boolean }[] {
+  guessersFor(answer: string): { playerId: string; name: string; correct: boolean }[] {
     const reveal = this.state.lastReveal;
     if (!reveal || reveal.index !== this.state.currentQuote?.index) return [];
     return reveal.perPlayer
       .filter(p => p.guess === answer)
-      .map(p => ({ name: p.name, correct: p.correct }));
+      .map(p => ({ playerId: p.playerId, name: p.name, correct: p.correct }));
   }
 
   get isRevealed(): boolean {
@@ -117,6 +117,10 @@ export class HostComponent implements OnDestroy, OnInit {
   endGameConfirm(): void {
     this.endGameConfirming = false;
     this.ws.send({ type: 'end_game' });
+  }
+
+  tokenIdFor(playerId: string): string | null {
+    return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
   }
 
   private pickUnusedQuote(): IngestQuote | null {

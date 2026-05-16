@@ -11,7 +11,8 @@ export type ClientMessage =
   | { type: 'next_quote'; quote: string; possibleAnswers: string[] }
   | { type: 'guess'; quoteIndex: number; guess: string }
   | { type: 'reveal'; truth: string }
-  | { type: 'end_game' };
+  | { type: 'end_game' }
+  | { type: 'pick_token'; tokenId: string | null };
 
 // Server → Client
 export type ServerMessage =
@@ -31,10 +32,11 @@ export type ServerMessage =
       perPlayer: { playerId: string; name: string; guess: string | null; correct: boolean }[];
       leaderboard: LeaderboardEntry[] }
   | { type: 'returned_to_lobby'; players: PlayerSummary[] }
-  | { type: 'error'; reason: string };
+  | { type: 'error'; reason: string }
+  | { type: 'pick_rejected'; reason: 'taken' | 'unknown_token' | 'game_started' };
 
 export interface LeaderboardEntry { playerId: string; name: string; score: number; }
-export interface PlayerSummary { playerId: string; name: string; }
+export interface PlayerSummary { playerId: string; name: string; tokenId: string | null; }
 
 export function isClientMessage(value: unknown): value is ClientMessage {
   if (!value || typeof value !== 'object') return false;

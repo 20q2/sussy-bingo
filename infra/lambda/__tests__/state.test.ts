@@ -103,3 +103,45 @@ describe('recordGuess', () => {
     expect(await recordGuess('card1', 1, 'p1', 'Andrew')).toBe('too_late');
   });
 });
+
+describe('player tokenId persistence', () => {
+  it('round-trips tokenId through putPlayer/getPlayer', async () => {
+    const cardId = 'test-card-tokenid';
+    ddbMock.on(PutCommand).resolves({});
+    ddbMock.on(GetCommand).resolves({
+      Item: { playerId: 'p1', name: 'Alice', score: 0, card: null, tokenId: 'abc-123' },
+    });
+    await putPlayer(cardId, {
+      playerId: 'p1', name: 'Alice', score: 0, card: null, tokenId: 'abc-123',
+    });
+    const got = await getPlayer(cardId, 'p1');
+    expect(got?.tokenId).toBe('abc-123');
+  });
+
+  it('returns null tokenId when not set', async () => {
+    const cardId = 'test-card-tokenid-null';
+    ddbMock.on(PutCommand).resolves({});
+    ddbMock.on(GetCommand).resolves({
+      Item: { playerId: 'p2', name: 'Bob', score: 0, card: null, tokenId: null },
+    });
+    await putPlayer(cardId, {
+      playerId: 'p2', name: 'Bob', score: 0, card: null, tokenId: null,
+    });
+    const got = await getPlayer(cardId, 'p2');
+    expect(got?.tokenId).toBeNull();
+  });
+
+  it('listPlayers includes tokenId', async () => {
+    const cardId = 'test-card-tokenid-list';
+    ddbMock.on(PutCommand).resolves({});
+    ddbMock.on(QueryCommand).resolves({
+      Items: [{ playerId: 'p3', name: 'Carol', score: 0, card: null, tokenId: 'xyz-789' }],
+    });
+    await putPlayer(cardId, {
+      playerId: 'p3', name: 'Carol', score: 0, card: null, tokenId: 'xyz-789',
+    });
+    const list = await listPlayers(cardId);
+    const found = list.find(p => p.playerId === 'p3');
+    expect(found?.tokenId).toBe('xyz-789');
+  });
+});

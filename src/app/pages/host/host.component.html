@@ -31,7 +31,10 @@
           <p class="lobby-sub">{{ state.players.length }} {{ state.players.length === 1 ? 'player has' : 'players have' }} joined</p>
         </div>
         <ul class="player-tiles">
-          <li *ngFor="let p of state.players" class="player-tile">{{ p.name }}</li>
+          <li *ngFor="let p of state.players" class="player-tile">
+            <app-token-avatar [tokenId]="p.tokenId" size="md"></app-token-avatar>
+            <span class="player-tile-name">{{ p.name }}</span>
+          </li>
           <li *ngIf="!state.players.length" class="placeholder">Open <strong>/play</strong> on your phone to join…</li>
         </ul>
         <div class="lobby-actions">
@@ -53,7 +56,10 @@
                  [class.wrong]="isRevealed && state.lastReveal!.truth !== a">
               <div class="answer-name">{{ a }}</div>
               <ul class="guessers" *ngIf="isRevealed">
-                <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">{{ g.name }}</li>
+                <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">
+                  <app-token-avatar [tokenId]="tokenIdFor(g.playerId)" size="sm"></app-token-avatar>
+                  <span class="guesser-name">{{ g.name }}</span>
+                </li>
                 <li *ngIf="!guessersFor(a).length" class="no-guess">—</li>
               </ul>
             </div>
@@ -89,6 +95,7 @@
             class="leaderboard-row"
             [class.first]="i === 0 && row.score > 0">
           <span class="rank">{{ i === 0 && row.score > 0 ? '🏆' : (i + 1) }}</span>
+          <app-token-avatar [tokenId]="tokenIdFor(row.playerId)" size="sm"></app-token-avatar>
           <span class="name">{{ row.name }}</span>
           <span class="score-block">
             <span class="delta" *ngIf="recentlyScored.has(row.playerId)">+1</span>
