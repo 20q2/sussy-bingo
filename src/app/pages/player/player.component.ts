@@ -147,14 +147,11 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   trackQuoteIndex(_: number, q: { index: number }): number { return q.index; }
 
-  /** Very subtle deterministic tint per cell so the grid feels hand-laid, not uniform. */
-  cellTint(row: number, col: number): string {
-    const tints = [
-      '#ffffff', '#fffaef', '#fef6e0', '#fff7d8',
-      '#fff9e6', '#fdf4dc', '#fff5d8', '#fefae6',
-    ];
-    const idx = ((row * 13 + col * 7) >>> 0) % tints.length;
-    return tints[idx];
+  /** True if the cell's name is one of the current quote's four possible answers. */
+  isAvailable(name: string): boolean {
+    const possible = this.state.currentQuote?.possibleAnswers;
+    if (!possible) return true;
+    return possible.includes(name);
   }
 
   markFor(row: number, col: number): 'correct' | 'incorrect' | null {

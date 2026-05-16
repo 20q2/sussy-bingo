@@ -305,8 +305,7 @@
   padding: 0.2rem;
   border: 3px solid var(--ink);
   border-radius: 10px;
-  /* Per-cell tint set inline via [style.--cell-tint]; falls back to plain white */
-  background: var(--cell-tint, var(--tile));
+  background: var(--tile);
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -426,6 +425,12 @@
 }
 .cell.highlighted:not(.you-guessed):not(.correct):not(.incorrect):not(.is-truth) {
   background: var(--paper-warm);
+}
+/* Dim cells whose name isn't one of the four answers for the current quote.
+   State classes (.you-guessed/.correct/.incorrect/.highlighted) override via :not(). */
+.cell.unavailable:not(.you-guessed):not(.correct):not(.incorrect):not(.highlighted) {
+  background: #cfc9b8;
+  color: rgba(26, 19, 48, 0.55);
 }
 
 /* Reveal banner — sticker book card */
