@@ -32,7 +32,7 @@
         </div>
         <ul class="player-tiles">
           <li *ngFor="let p of state.players; trackBy: trackPlayerId" class="player-tile">
-            <app-token-avatar [tokenId]="p.tokenId" size="md"></app-token-avatar>
+            <app-token-avatar [tokenId]="p.tokenId" size="lg"></app-token-avatar>
             <span class="player-tile-name">{{ p.name }}</span>
           </li>
           <li *ngIf="!state.players.length" class="placeholder">Open <strong>/play</strong> on your phone to join…</li>
