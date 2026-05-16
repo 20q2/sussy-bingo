@@ -426,10 +426,10 @@
 .cell.highlighted:not(.you-guessed):not(.correct):not(.incorrect):not(.is-truth) {
   background: var(--paper-warm);
 }
-/* Dim cells whose name isn't one of the four answers for the current quote.
-   State classes (.you-guessed/.correct/.incorrect/.highlighted) override via :not(). */
+/* Cells whose name isn't one of the four current answers shrink slightly
+   so the four valid cells visually dominate. State classes override via :not(). */
 .cell.unavailable:not(.you-guessed):not(.correct):not(.incorrect):not(.highlighted) {
-  background: #cfc9b8;
+  scale: 0.82;
   color: rgba(26, 19, 48, 0.55);
 }
 
