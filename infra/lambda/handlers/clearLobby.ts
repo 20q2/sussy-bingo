@@ -17,7 +17,7 @@ export async function handleClearLobby(connectionId: string, endpoint: string): 
   }
 
   await writeCardSession({
-    ...session, phase: 'lobby', currentQuoteIndex: 0, weights: undefined,
+    ...session, phase: 'lobby', currentQuoteIndex: 0, weights: undefined, card: undefined,
   });
 
   await broadcastToAll(endpoint, { type: 'lobby_cleared' });

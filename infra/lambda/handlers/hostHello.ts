@@ -28,5 +28,6 @@ export async function handleHostHello(connectionId: string, endpoint: string): P
     currentQuote,
     leaderboard,
     players: summaries,
+    card: session.card ?? null,
   });
 }

@@ -61,14 +61,14 @@
     </div>
 
     <div class="card-grid">
-      <div class="row" *ngFor="let row of state.card">
+      <div class="row" *ngFor="let row of state.card; let rIdx = index">
         <button class="cell"
-                *ngFor="let name of row"
-                [class.you-guessed]="state.yourGuess === name && !state.lastReveal"
-                [class.correct]="state.lastReveal?.truth === name && state.yourGuess === name"
-                [class.incorrect]="state.lastReveal && state.yourGuess === name && state.lastReveal.truth !== name"
-                [class.is-truth]="state.lastReveal?.truth === name"
-                (click)="onSquareTap(name)">
+                *ngFor="let name of row; let cIdx = index"
+                [class.you-guessed]="isCurrentPick(rIdx, cIdx) && !state.lastReveal"
+                [class.correct]="markFor(rIdx, cIdx) === 'correct'"
+                [class.incorrect]="markFor(rIdx, cIdx) === 'incorrect'"
+                [class.is-truth]="state.lastReveal?.truth === name && state.lastReveal?.index === state.currentQuote?.index"
+                (click)="onSquareTap(rIdx, cIdx, name)">
           {{ name }}
         </button>
       </div>

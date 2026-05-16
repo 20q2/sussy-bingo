@@ -22,10 +22,9 @@ export type ServerMessage =
       yourGuess: string | null; leaderboard: LeaderboardEntry[]; players: PlayerSummary[] }
   | { type: 'host_state'; cardId: string; phase: Phase;
       currentQuote: { index: number; quote: string; possibleAnswers: string[] } | null;
-      leaderboard: LeaderboardEntry[]; players: PlayerSummary[] }
+      leaderboard: LeaderboardEntry[]; players: PlayerSummary[]; card: string[][] | null }
   | { type: 'lobby_update'; players: PlayerSummary[] }
-  | { type: 'card_started'; cardId: string; leaderboard: LeaderboardEntry[] }
-  | { type: 'your_card'; card: string[][] }
+  | { type: 'card_started'; cardId: string; leaderboard: LeaderboardEntry[]; card: string[][] }
   | { type: 'quote'; index: number; quote: string; possibleAnswers: string[] }
   | { type: 'guess_ack'; quoteIndex: number; guess: string }
   | { type: 'guess_rejected'; quoteIndex: number; reason: 'too_late' | 'unknown_quote' | 'not_a_player' }

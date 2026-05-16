@@ -21,16 +21,13 @@ it('rejects if caller is not host', async () => {
   expect(stateWrites.length).toBe(0);
 });
 
-it('generates cards for all players and broadcasts card_started', async () => {
+it('broadcasts card_started with a shared 7x7 card', async () => {
   ddbMock.on(GetCommand)
     .resolvesOnce({ Item: { role: 'host', cardId: 'card1' } }) // connection lookup
     .resolves({ Item: { PK: 'CARD', SK: 'CURRENT', cardId: 'card1', phase: 'lobby', currentQuoteIndex: 0 } });
-  // QueryCommand is shared by listPlayers and listAllConnections.
-  // Items include both player fields (playerId/name/score) and connection fields
-  // (connectionId/role) so both functions get usable data from the same mock response.
   ddbMock.on(QueryCommand).resolves({ Items: [
-    { connectionId: 'c-p1', role: 'player', playerId: 'p1', name: 'A', score: 0, card: null },
-    { connectionId: 'c-p2', role: 'player', playerId: 'p2', name: 'B', score: 0, card: null },
+    { playerId: 'p1', name: 'A', score: 0, card: null },
+    { playerId: 'p2', name: 'B', score: 0, card: null },
   ]});
   ddbMock.on(PutCommand).resolves({});
   apiMock.on(PostToConnectionCommand).resolves({});
@@ -40,10 +37,16 @@ it('generates cards for all players and broadcasts card_started', async () => {
     'c1', 'https://x/prod',
   );
 
-  const types = apiMock.commandCalls(PostToConnectionCommand)
-    .map(c => JSON.parse(c.args[0].input.Data!.toString()).type);
+  const messages = apiMock.commandCalls(PostToConnectionCommand)
+    .map(c => JSON.parse(c.args[0].input.Data!.toString()));
+  const types = messages.map(m => m.type);
   expect(types).toContain('card_started');
-  expect(types.filter(t => t === 'your_card').length).toBe(2);
+  expect(types).not.toContain('your_card');
+
+  const cardStarted = messages.find(m => m.type === 'card_started');
+  expect(cardStarted.card).toBeDefined();
+  expect(cardStarted.card.length).toBe(7);
+  expect(cardStarted.card[0].length).toBe(7);
 });
 
 it('tokens: assigns random unused tokens to players with null tokenId before broadcasting', async () => {

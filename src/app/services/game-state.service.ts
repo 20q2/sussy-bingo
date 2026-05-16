@@ -48,17 +48,14 @@ export class GameStateService {
       case 'host_state':
         this.subject.next({
           ...s, phase: msg.phase, players: msg.players, leaderboard: msg.leaderboard,
-          currentQuote: msg.currentQuote, yourGuess: null, lastReveal: null,
+          currentQuote: msg.currentQuote, card: msg.card, yourGuess: null, lastReveal: null,
         });
         return;
       case 'lobby_update':
         this.subject.next({ ...s, players: msg.players });
         return;
       case 'card_started':
-        this.subject.next({ ...s, phase: 'live', leaderboard: msg.leaderboard, currentQuote: null, yourGuess: null, lastReveal: null });
-        return;
-      case 'your_card':
-        this.subject.next({ ...s, card: msg.card });
+        this.subject.next({ ...s, phase: 'live', leaderboard: msg.leaderboard, card: msg.card, currentQuote: null, yourGuess: null, lastReveal: null });
         return;
       case 'quote':
         this.subject.next({ ...s, currentQuote: { index: msg.index, quote: msg.quote, possibleAnswers: msg.possibleAnswers }, yourGuess: null, lastReveal: null });

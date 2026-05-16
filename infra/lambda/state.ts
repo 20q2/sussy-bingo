@@ -12,6 +12,7 @@ export interface CardSession {
   phase: Phase;
   currentQuoteIndex: number;
   weights?: { name: string; weight: number }[];
+  card?: string[][];
 }
 
 export async function getCardSession(): Promise<CardSession | null> {
@@ -25,6 +26,7 @@ export async function getCardSession(): Promise<CardSession | null> {
     phase: res.Item.phase,
     currentQuoteIndex: res.Item.currentQuoteIndex ?? 0,
     weights: res.Item.weights,
+    card: res.Item.card,
   };
 }
 

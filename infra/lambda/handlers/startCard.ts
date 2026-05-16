@@ -1,8 +1,10 @@
 import { ClientMessage, LeaderboardEntry, PlayerSummary } from '../protocol';
 import { getCardSession, writeCardSession, listPlayers, putPlayer, generateCard } from '../state';
-import { getConnection, listAllConnections } from '../connections';
+import { getConnection } from '../connections';
 import { broadcastToAll, sendTo } from '../broadcast';
 import tokensJson from '../tokens.json';
+
+const BOARD_SIZE = 7;
 
 const ALL_TOKEN_IDS: string[] = (tokensJson as Array<{ id: string }>).map(t => t.id);
 
@@ -40,11 +42,12 @@ export async function handleStartCard(
     }
   }
 
-  const newCards = new Map<string, string[][]>();
+  // One shared board for the whole lobby.
+  const card = generateCard(msg.weights, BOARD_SIZE, BOARD_SIZE);
+
+  // Reset every player's score; null out the per-player card (now unused).
   for (const p of players) {
-    const card = generateCard(msg.weights, 5, 5);
-    newCards.set(p.playerId, card);
-    await putPlayer(session.cardId, { ...p, score: 0, card });
+    await putPlayer(session.cardId, { ...p, score: 0, card: null });
   }
 
   await writeCardSession({
@@ -52,6 +55,7 @@ export async function handleStartCard(
     phase: 'live',
     weights: msg.weights,
     currentQuoteIndex: 0,
+    card,
   });
 
   // Broadcast updated player summaries so clients see auto-assigned tokenIds
@@ -66,16 +70,6 @@ export async function handleStartCard(
     .sort((a, b) => a.name.localeCompare(b.name));
 
   await broadcastToAll(endpoint, {
-    type: 'card_started', cardId: session.cardId, leaderboard,
+    type: 'card_started', cardId: session.cardId, leaderboard, card,
   });
-
-  // Per-player your_card delivery
-  const conns = await listAllConnections();
-  for (const c of conns) {
-    if (c.role !== 'player' || !c.playerId) continue;
-    const card = newCards.get(c.playerId);
-    if (card) {
-      await sendTo(endpoint, c.connectionId, { type: 'your_card', card });
-    }
-  }
 }

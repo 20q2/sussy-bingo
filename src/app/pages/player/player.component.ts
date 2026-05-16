@@ -15,6 +15,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
   needsName = false;
   nameInput = '';
   backgroundUrl = '';
+  /** Cell the player tapped for the current open quote, or null if untapped. */
+  currentPick: { row: number; col: number } | null = null;
+  /** Permanent per-cell outcome history keyed by "r,c". */
+  cellMarks = new Map<string, 'correct' | 'incorrect'>();
+  private lastSeenRevealIndex: number | null = null;
+  private lastSeenQuoteIndex: number | null = null;
   private sub = new Subscription();
   private static readonly LANDS = ['forest', 'island', 'mountain', 'plains', 'swamp'];
 
@@ -37,6 +43,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
     this.sub.add(this.game.state$.subscribe(s => {
       const wasMe = this.state.me;
+      const wasCard = this.state.card;
       this.state = s;
       if (s.me && !this.identity.snapshot()) {
         this.identity.save({ playerId: s.me.playerId, name: s.me.name, cardId: s.me.cardId });
@@ -48,6 +55,33 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.needsName = true;
         this.nameInput = '';
       }
+
+      // Reset cell marks whenever a fresh card arrives (new game / new round).
+      if (s.card !== wasCard) {
+        this.cellMarks.clear();
+        this.currentPick = null;
+        this.lastSeenQuoteIndex = null;
+        this.lastSeenRevealIndex = null;
+      }
+
+      // Clear the pending pick when the host moves to a new quote.
+      if (s.currentQuote && s.currentQuote.index !== this.lastSeenQuoteIndex) {
+        this.lastSeenQuoteIndex = s.currentQuote.index;
+        this.currentPick = null;
+      }
+
+      // On a fresh reveal, freeze the current pick into a permanent mark.
+      if (s.lastReveal && s.lastReveal.index !== this.lastSeenRevealIndex) {
+        this.lastSeenRevealIndex = s.lastReveal.index;
+        if (this.currentPick && s.card) {
+          const pickedName = s.card[this.currentPick.row]?.[this.currentPick.col];
+          const correct = pickedName === s.lastReveal.truth;
+          this.cellMarks.set(
+            `${this.currentPick.row},${this.currentPick.col}`,
+            correct ? 'correct' : 'incorrect',
+          );
+        }
+      }
     }));
   }
 
@@ -57,9 +91,20 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.needsName = false;
   }
 
-  onSquareTap(name: string): void {
+  onSquareTap(row: number, col: number, name: string): void {
     if (!this.state.currentQuote) return;
+    if (this.state.lastReveal && this.state.lastReveal.index === this.state.currentQuote.index) return;
+    if (this.cellMarks.has(`${row},${col}`)) return;
+    this.currentPick = { row, col };
     this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name });
+  }
+
+  markFor(row: number, col: number): 'correct' | 'incorrect' | null {
+    return this.cellMarks.get(`${row},${col}`) ?? null;
+  }
+
+  isCurrentPick(row: number, col: number): boolean {
+    return this.currentPick?.row === row && this.currentPick?.col === col;
   }
 
   onPickToken(tokenId: string | null): void {

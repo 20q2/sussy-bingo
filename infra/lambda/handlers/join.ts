@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { ClientMessage, LeaderboardEntry, PlayerSummary } from '../protocol';
-import { ensureLobby, getPlayer, putPlayer, listPlayers, getQuoteRound, generateCard } from '../state';
+import { ensureLobby, getPlayer, putPlayer, listPlayers, getQuoteRound } from '../state';
 import { attachPlayer } from '../connections';
 import { sendTo, broadcastToAll } from '../broadcast';
 
@@ -16,11 +16,7 @@ export async function handleJoin(
 
   if (!player) {
     playerId = randomUUID();
-    let card: string[][] | null = null;
-    if (session.phase === 'live' && session.weights) {
-      card = generateCard(session.weights, 5, 5);
-    }
-    player = { playerId, name: msg.name, score: 0, card, tokenId: null };
+    player = { playerId, name: msg.name, score: 0, card: null, tokenId: null };
     await putPlayer(session.cardId, player);
   } else if (player.name !== msg.name) {
     player = { ...player, name: msg.name };
@@ -53,7 +49,7 @@ export async function handleJoin(
     phase: session.phase,
     name: player.name,
     score: player.score,
-    card: player.card,
+    card: session.card ?? null,
     currentQuote,
     yourGuess,
     leaderboard,
