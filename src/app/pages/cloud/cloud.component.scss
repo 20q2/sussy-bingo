@@ -79,10 +79,11 @@
   text-transform: uppercase;
 }
 
-.spacer {
-  // mirrors the back button width so the title stays centered
-  display: inline-block;
-  min-width: 5.5rem;
+.regenerate {
+  font-size: 0.95rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  font-family: inherit;
 }
 
 .cloud-stage {

@@ -36,7 +36,8 @@
       "Bash(git reset *)",
       "Bash(curl -s \"https://api.scryfall.com/cards/search?q=t%3Atoken+t%3Afractal&order=released&dir=asc\")",
       "Bash(curl -s \"https://api.scryfall.com/cards/search?q=t%3Atoken+name%3AFractal&unique=prints\")",
-      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(c['name'],'|',c.get\\('set'\\),'|',c.get\\('artist'\\),'|',c['image_uris']['art_crop']\\) for c in d.get\\('data',[]\\) if 'image_uris' in c]\")"
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(c['name'],'|',c.get\\('set'\\),'|',c.get\\('artist'\\),'|',c['image_uris']['art_crop']\\) for c in d.get\\('data',[]\\) if 'image_uris' in c]\")",
+      "Bash(cat C:\\\\\\\\Users\\\\\\\\andje\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\a--Coding-sussy-bingo\\\\\\\\6020edc3-e428-4e7f-8a73-cf5cf07a9995\\\\\\\\tasks\\\\\\\\bx2i3nuft.output)"
     ],
     "additionalDirectories": [
       "a:\\Coding\\sussy-bingo-tokens\\tools",

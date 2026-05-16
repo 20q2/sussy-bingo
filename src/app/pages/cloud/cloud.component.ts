@@ -10,6 +10,8 @@ import { WordCloudDatum } from '../../components/word-cloud/word-cloud.component
 })
 export class CloudComponent implements OnInit {
   data: WordCloudDatum[] = [];
+  visible = true;
+  private rawCounts: [string, number][] = [];
 
   private readonly noNoWords = new Set([
     'i',"i'm",'im','to','you','the','my','a','this','just','that','is','of','in','and','it','on','have','going','dont','its',
@@ -31,8 +33,31 @@ export class CloudComponent implements OnInit {
         counts[word] = (counts[word] ?? 0) + 1;
       }
     }
-    this.data = Object.entries(counts)
-      .filter(([, n]) => n > 1)
-      .map(([text, n]) => ({ text, value: 12 + n * 8, count: n }));
+    this.rawCounts = Object.entries(counts).filter(([, n]) => n > 1);
+    this.data = this.scaleToViewport(this.rawCounts);
+  }
+
+  private scaleToViewport(entries: [string, number][]): WordCloudDatum[] {
+    if (!entries.length) return [];
+    const maxN = Math.max(...entries.map(([, n]) => n));
+    // Pick min/max font sizes proportional to the viewport so the cloud actually fills it.
+    const vh = window.innerHeight - 120;
+    const minSize = Math.max(14, vh * 0.018);
+    const maxSize = Math.max(minSize * 4, vh * 0.16);
+    return entries.map(([text, n]) => {
+      const t = Math.sqrt((n - 1) / Math.max(1, maxN - 1));
+      return { text, value: minSize + (maxSize - minSize) * t, count: n };
+    });
+  }
+
+  regenerate(): void {
+    const rescaled = this.scaleToViewport(this.rawCounts);
+    for (let i = rescaled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [rescaled[i], rescaled[j]] = [rescaled[j], rescaled[i]];
+    }
+    this.data = rescaled;
+    this.visible = false;
+    setTimeout(() => { this.visible = true; });
   }
 }

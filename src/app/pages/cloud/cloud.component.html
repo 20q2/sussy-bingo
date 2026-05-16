@@ -9,10 +9,12 @@
         {{ data.length }} words said more than once
       </p>
     </div>
-    <span class="spacer"></span>
+    <button type="button" class="sb-button secondary regenerate" (click)="regenerate()">
+      ↻ Regenerate
+    </button>
   </header>
 
   <div class="cloud-stage">
-    <app-word-cloud [data]="data" [heightOffset]="120"></app-word-cloud>
+    <app-word-cloud *ngIf="visible" [data]="data" [heightOffset]="120"></app-word-cloud>
   </div>
 </div>
