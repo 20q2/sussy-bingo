@@ -55,17 +55,16 @@
 
             <div class="answers-grid" [class.is-revealed]="isRevealed">
               <div class="answer-card"
-                   *ngFor="let a of state.currentQuote.possibleAnswers"
+                   *ngFor="let a of state.currentQuote.possibleAnswers; trackBy: trackAnswerCard"
                    [class.truth]="isRevealed && state.lastReveal!.truth === a"
                    [class.wrong]="isRevealed && state.lastReveal!.truth !== a">
                 <span class="answer-chance">{{ chanceFor(a) | percent:'1.0-0' }}</span>
                 <div class="answer-name">{{ a }}</div>
-                <ul class="guessers" *ngIf="isRevealed">
+                <ul class="guessers" *ngIf="isRevealed && guessersFor(a).length">
                   <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">
                     <app-token-avatar [tokenId]="tokenIdFor(g.playerId)" size="sm"></app-token-avatar>
                     <span class="guesser-name">{{ g.name }}</span>
                   </li>
-                  <li *ngIf="!guessersFor(a).length" class="no-guess">—</li>
                 </ul>
               </div>
             </div>
