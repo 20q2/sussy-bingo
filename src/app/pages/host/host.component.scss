@@ -1,13 +1,74 @@
 :host { display: block; }
 
 .host {
+  position: relative;
   min-height: 100vh;
   padding: 1.5rem 2.5rem 2rem;
-  background:
-    radial-gradient(ellipse at top right, rgba(76, 201, 240, 0.14), transparent 60%),
-    radial-gradient(ellipse at bottom left, rgba(239, 71, 111, 0.12), transparent 60%),
-    var(--bg-deep);
+  background: var(--bg-deep);
   color: var(--text-bright);
+  overflow: hidden;
+  isolation: isolate;
+}
+.host::before,
+.host::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: -1;
+  will-change: translate, scale;
+}
+.host::before {
+  top: -15%;
+  right: -10%;
+  width: 60vmin;
+  height: 60vmin;
+  background: radial-gradient(circle, rgba(76, 201, 240, 0.32), transparent 65%);
+  animation: aurora-blue 28s ease-in-out infinite;
+}
+.host::after {
+  bottom: -20%;
+  left: -10%;
+  width: 65vmin;
+  height: 65vmin;
+  background: radial-gradient(circle, rgba(239, 71, 111, 0.30), transparent 65%);
+  animation: aurora-rose 34s ease-in-out infinite;
+}
+/* Third blob via the first body child for extra depth — uses a real element so we
+   don't run out of pseudo-element slots. */
+.host > .hdr::after {
+  content: '';
+  position: fixed;
+  top: 30%;
+  left: 35%;
+  width: 50vmin;
+  height: 50vmin;
+  border-radius: 50%;
+  filter: blur(110px);
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(177, 138, 255, 0.22), transparent 65%);
+  animation: aurora-violet 42s ease-in-out infinite;
+}
+@keyframes aurora-blue {
+  0%, 100% { translate: 0 0; scale: 1; }
+  33%      { translate: -6vmin 4vmin; scale: 1.1; }
+  66%      { translate: 4vmin -3vmin; scale: 0.95; }
+}
+@keyframes aurora-rose {
+  0%, 100% { translate: 0 0; scale: 1; }
+  40%      { translate: 5vmin -6vmin; scale: 1.08; }
+  70%      { translate: -3vmin 4vmin; scale: 0.92; }
+}
+@keyframes aurora-violet {
+  0%, 100% { translate: 0 0; scale: 1; }
+  25%      { translate: -8vmin -4vmin; scale: 1.12; }
+  55%      { translate: 6vmin 5vmin; scale: 0.9; }
+  80%      { translate: -3vmin 7vmin; scale: 1.05; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .host::before, .host::after, .host > .hdr::after { animation: none; }
 }
 
 /* ===== Header ===== */
