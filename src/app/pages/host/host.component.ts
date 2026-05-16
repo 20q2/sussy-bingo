@@ -172,6 +172,12 @@ export class HostComponent implements OnDestroy, OnInit {
 
   trackPlayerId(_: number, p: { playerId: string }): string { return p.playerId; }
 
+  /** Track answer cards by their grid position, not name. This keeps the DOM nodes
+   *  pinned to their cells across quotes — names just text-swap in place. Tracking by
+   *  name caused cards whose name carried over to be physically moved by ngFor, which
+   *  the CSS grid does not animate, producing the "hang then snap" jump. */
+  trackAnswerCard = (i: number, _name: string): number => i;
+
   private pickUnusedQuote(): IngestQuote | null {
     const remaining = this.quotes.filter((_, i) => !this.quotesUsed.has(i));
     if (!remaining.length) return null;

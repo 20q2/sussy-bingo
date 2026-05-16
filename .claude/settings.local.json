@@ -33,7 +33,10 @@
       "Bash(git worktree *)",
       "Bash(git branch *)",
       "Bash(:)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(curl -s \"https://api.scryfall.com/cards/search?q=t%3Atoken+t%3Afractal&order=released&dir=asc\")",
+      "Bash(curl -s \"https://api.scryfall.com/cards/search?q=t%3Atoken+name%3AFractal&unique=prints\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(c['name'],'|',c.get\\('set'\\),'|',c.get\\('artist'\\),'|',c['image_uris']['art_crop']\\) for c in d.get\\('data',[]\\) if 'image_uris' in c]\")"
     ],
     "additionalDirectories": [
       "a:\\Coding\\sussy-bingo-tokens\\tools",
