@@ -4,93 +4,13 @@
   position: relative;
   min-height: 100vh;
   padding: 1.5rem 2.5rem 2rem;
-  background: var(--bg-deep);
+  background:
+    radial-gradient(ellipse at top right, rgba(76, 201, 240, 0.14), transparent 60%),
+    radial-gradient(ellipse at bottom left, rgba(239, 71, 111, 0.12), transparent 60%),
+    var(--bg-deep);
   color: var(--text-bright);
   overflow: hidden;
   isolation: isolate;
-}
-.host::before,
-.host::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(70px) saturate(140%);
-  pointer-events: none;
-  z-index: -1;
-  mix-blend-mode: screen;
-  will-change: translate, scale, filter;
-}
-.host::before {
-  top: -20%;
-  right: -15%;
-  width: 75vmin;
-  height: 75vmin;
-  background: radial-gradient(circle, rgba(76, 201, 240, 0.75), rgba(76, 201, 240, 0.15) 50%, transparent 70%);
-  animation: aurora-blue 18s ease-in-out infinite;
-}
-.host::after {
-  bottom: -25%;
-  left: -15%;
-  width: 80vmin;
-  height: 80vmin;
-  background: radial-gradient(circle, rgba(239, 71, 111, 0.70), rgba(239, 71, 111, 0.15) 50%, transparent 70%);
-  animation: aurora-rose 22s ease-in-out infinite;
-}
-/* Third blob via the header pseudo for extra depth */
-.host > .hdr::after {
-  content: '';
-  position: fixed;
-  top: 20%;
-  left: 30%;
-  width: 65vmin;
-  height: 65vmin;
-  border-radius: 50%;
-  filter: blur(90px) saturate(140%);
-  pointer-events: none;
-  z-index: -1;
-  mix-blend-mode: screen;
-  background: radial-gradient(circle, rgba(177, 138, 255, 0.65), rgba(177, 138, 255, 0.12) 50%, transparent 70%);
-  animation: aurora-violet 26s ease-in-out infinite;
-}
-/* A fourth golden blob to keep the palette balanced with the brand color */
-.host > .main::before {
-  content: '';
-  position: fixed;
-  top: 55%;
-  left: 60%;
-  width: 55vmin;
-  height: 55vmin;
-  border-radius: 50%;
-  filter: blur(85px) saturate(140%);
-  pointer-events: none;
-  z-index: -1;
-  mix-blend-mode: screen;
-  background: radial-gradient(circle, rgba(255, 209, 102, 0.45), rgba(255, 209, 102, 0.08) 50%, transparent 70%);
-  animation: aurora-gold 30s ease-in-out infinite;
-}
-@keyframes aurora-blue {
-  0%, 100% { translate: 0 0;             scale: 1;     filter: blur(70px) saturate(140%) hue-rotate(0deg); }
-  33%      { translate: -18vmin 10vmin;  scale: 1.25;  filter: blur(60px) saturate(160%) hue-rotate(-15deg); }
-  66%      { translate: 12vmin -8vmin;   scale: 0.85;  filter: blur(80px) saturate(120%) hue-rotate(10deg); }
-}
-@keyframes aurora-rose {
-  0%, 100% { translate: 0 0;             scale: 1;     filter: blur(70px) saturate(140%) hue-rotate(0deg); }
-  40%      { translate: 14vmin -14vmin;  scale: 1.2;   filter: blur(60px) saturate(170%) hue-rotate(20deg); }
-  70%      { translate: -10vmin 8vmin;   scale: 0.88;  filter: blur(85px) saturate(120%) hue-rotate(-12deg); }
-}
-@keyframes aurora-violet {
-  0%, 100% { translate: 0 0;             scale: 1;     filter: blur(90px) saturate(140%) hue-rotate(0deg); }
-  25%      { translate: -16vmin -10vmin; scale: 1.3;   filter: blur(75px) saturate(170%) hue-rotate(25deg); }
-  55%      { translate: 14vmin 12vmin;   scale: 0.82;  filter: blur(100px) saturate(130%) hue-rotate(-20deg); }
-  80%      { translate: -6vmin 14vmin;   scale: 1.15;  filter: blur(85px) saturate(150%) hue-rotate(15deg); }
-}
-@keyframes aurora-gold {
-  0%, 100% { translate: 0 0;             scale: 1;     filter: blur(85px) saturate(140%) hue-rotate(0deg); }
-  35%      { translate: -12vmin 10vmin;  scale: 1.18;  filter: blur(75px) saturate(160%) hue-rotate(-18deg); }
-  65%      { translate: 10vmin -12vmin;  scale: 0.88;  filter: blur(95px) saturate(130%) hue-rotate(22deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .host::before, .host::after, .host > .hdr::after, .host > .main::before { animation: none; }
 }
 
 /* ===== Header ===== */

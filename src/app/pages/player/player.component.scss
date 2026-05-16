@@ -305,7 +305,8 @@
   padding: 0.2rem;
   border: 3px solid var(--ink);
   border-radius: 10px;
-  background: var(--tile);
+  /* Per-cell tint set inline via [style.--cell-tint]; falls back to plain white */
+  background: var(--cell-tint, var(--tile));
   color: var(--ink);
   display: flex;
   align-items: center;
@@ -330,6 +331,7 @@
 .row:nth-child(even) .cell:nth-child(7n+2) { --tilt:  0.7deg; }
 .row:nth-child(even) .cell:nth-child(7n+4) { --tilt: -1.1deg; }
 .row:nth-child(even) .cell:nth-child(7n+6) { --tilt:  0.5deg; }
+
 .cell-name { position: relative; z-index: 1; pointer-events: none; }
 .placements {
   position: absolute;
@@ -341,17 +343,25 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  /* Each chip lands at a deterministic offset within the cell so chips from
-     different players (or repeats) don't perfectly overlap. */
+  /* Explicit square box: the host element of <app-token-avatar> is otherwise
+     inline and gets a non-square bounding box from text baseline, which makes
+     border-radius: 50% / transform: scale render as an oval. */
+  display: block;
+  width: 26px;
+  height: 26px;
   translate: calc(-50% + var(--chip-ox, 0px)) calc(-50% + var(--chip-oy, 0px));
   rotate: var(--chip-rot, 0deg);
-  border-radius: 50%;
-  outline: 2px solid var(--ink);
-  outline-offset: -2px;
   filter: drop-shadow(0 5px 4px rgba(0, 0, 0, 0.55));
   animation: chip-drop 520ms cubic-bezier(0.22, 1.6, 0.36, 1) backwards;
 }
-.placements ::ng-deep .avatar.size-sm { width: 22px; height: 22px; }
+/* Outline lives on the inner round avatar so it follows the circle, not the
+   square host. */
+.placements ::ng-deep .avatar.size-sm {
+  width: 26px;
+  height: 26px;
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
 /* Drop from the player's POV: chip starts huge and blurry (above the screen),
    scales down to its scatter spot with a tiny bounce + rotation wobble. */
 @keyframes chip-drop {

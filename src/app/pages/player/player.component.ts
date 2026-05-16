@@ -128,9 +128,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
     const key = `${playerId}#${row},${col}`;
     let h = 0;
     for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0;
-    const ox = (((h & 0xff) / 255) - 0.5) * 26;          // -13..+13 px
-    const oy = ((((h >> 8) & 0xff) / 255) - 0.5) * 26;
-    const rot = ((((h >> 16) & 0xff) / 255) - 0.5) * 50; // -25..+25 deg
+    // Polar placement — chips always sit on a ring 16-22px from cell center so
+    // the name underneath stays readable. Different angles for different
+    // playerIds keep chips from stacking when several land on the same cell.
+    const angle = ((h & 0xff) / 255) * Math.PI * 2;
+    const radius = 16 + (((h >> 8) & 0xff) / 255) * 6;     // 16..22 px
+    const ox = Math.cos(angle) * radius;
+    const oy = Math.sin(angle) * radius;
+    const rot = ((((h >> 16) & 0xff) / 255) - 0.5) * 50;   // -25..+25 deg
     return {
       '--chip-ox': `${ox.toFixed(1)}px`,
       '--chip-oy': `${oy.toFixed(1)}px`,
@@ -141,6 +146,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
   trackPlacement(_: number, p: { playerId: string }): string { return p.playerId; }
 
   trackQuoteIndex(_: number, q: { index: number }): number { return q.index; }
+
+  /** Very subtle deterministic tint per cell so the grid feels hand-laid, not uniform. */
+  cellTint(row: number, col: number): string {
+    const tints = [
+      '#ffffff', '#fffaef', '#fef6e0', '#fff7d8',
+      '#fff9e6', '#fdf4dc', '#fff5d8', '#fefae6',
+    ];
+    const idx = ((row * 13 + col * 7) >>> 0) % tints.length;
+    return tints[idx];
+  }
 
   markFor(row: number, col: number): 'correct' | 'incorrect' | null {
     return this.cellMarks.get(`${row},${col}`) ?? null;
