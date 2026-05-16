@@ -131,6 +131,8 @@ export class HostComponent implements OnDestroy, OnInit {
     return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
   }
 
+  trackPlayerId(_: number, p: { playerId: string }): string { return p.playerId; }
+
   private pickUnusedQuote(): IngestQuote | null {
     const remaining = this.quotes.filter((_, i) => !this.quotesUsed.has(i));
     if (!remaining.length) return null;

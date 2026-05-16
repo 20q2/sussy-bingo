@@ -34,7 +34,7 @@
       <p class="lobby-sub">You're in as <strong>{{ state.me?.name }}</strong></p>
       <div class="lobby-divider">Players in the room</div>
       <ul class="lobby-players">
-        <li *ngFor="let p of state.players" [class.you]="p.playerId === state.me?.playerId">
+        <li *ngFor="let p of state.players; trackBy: trackPlayerId" [class.you]="p.playerId === state.me?.playerId">
           <app-token-avatar [tokenId]="p.tokenId" size="sm"></app-token-avatar>
           <span class="lobby-player-name">{{ p.name }}</span>
         </li>

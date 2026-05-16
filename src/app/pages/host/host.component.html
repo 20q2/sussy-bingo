@@ -31,7 +31,7 @@
           <p class="lobby-sub">{{ state.players.length }} {{ state.players.length === 1 ? 'player has' : 'players have' }} joined</p>
         </div>
         <ul class="player-tiles">
-          <li *ngFor="let p of state.players" class="player-tile">
+          <li *ngFor="let p of state.players; trackBy: trackPlayerId" class="player-tile">
             <app-token-avatar [tokenId]="p.tokenId" size="md"></app-token-avatar>
             <span class="player-tile-name">{{ p.name }}</span>
           </li>
@@ -94,7 +94,7 @@
     <aside class="leaderboard sb-card">
       <h3 class="leaderboard-title">Leaderboard</h3>
       <ol class="leaderboard-list">
-        <li *ngFor="let row of displayLeaderboard; let i = index"
+        <li *ngFor="let row of displayLeaderboard; let i = index; trackBy: trackPlayerId"
             class="leaderboard-row"
             [class.first]="i === 0 && row.score > 0">
           <span class="rank">{{ i === 0 && row.score > 0 ? '🏆' : (i + 1) }}</span>

@@ -66,6 +66,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.ws.send({ type: 'pick_token', tokenId });
   }
 
+  trackPlayerId(_: number, p: { playerId: string }): string { return p.playerId; }
+
   private rejoin(): void {
     const cached = this.identity.snapshot();
     if (cached) this.ws.send({ type: 'join', name: cached.name, playerId: cached.playerId });
