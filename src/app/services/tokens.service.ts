@@ -19,7 +19,7 @@ export class TokensService {
   async load(): Promise<void> {
     try {
       const list = await firstValueFrom(this.http.get<Token[]>('assets/tokens.json'));
-      this.tokens = list ?? [];
+      this.tokens = (list ?? []).map(t => ({ ...t, name: t.name.split(/\s+/)[0] }));
     } catch {
       this.tokens = [];
     }
