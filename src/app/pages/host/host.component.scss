@@ -304,6 +304,25 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.55rem;
+}
+.answer-chance {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-yellow);
+  background: rgba(255, 209, 102, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 209, 102, 0.3);
+}
+.answer-card.truth .answer-chance {
+  color: var(--bg-deep);
+  background: rgba(0, 0, 0, 0.18);
+  border-color: rgba(0, 0, 0, 0.25);
 }
 .answers-grid.is-revealed .answer-card { opacity: 0.55; }
 .answer-card.truth {

@@ -57,7 +57,10 @@
                  *ngFor="let a of state.currentQuote.possibleAnswers"
                  [class.truth]="isRevealed && state.lastReveal!.truth === a"
                  [class.wrong]="isRevealed && state.lastReveal!.truth !== a">
-              <div class="answer-name">{{ a }}</div>
+              <div class="answer-name">
+                {{ a }}
+                <span class="answer-chance">{{ chanceFor(a) | percent:'1.0-0' }}</span>
+              </div>
               <ul class="guessers" *ngIf="isRevealed">
                 <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">
                   <app-token-avatar [tokenId]="tokenIdFor(g.playerId)" size="sm"></app-token-avatar>

@@ -76,6 +76,19 @@ export class HostComponent implements OnDestroy, OnInit {
       .map(p => ({ playerId: p.playerId, name: p.name, correct: p.correct }));
   }
 
+  /**
+   * Prior probability that `answer` is the speaker, given the four candidates
+   * on the current quote. Computed from the ingest file's per-person quote
+   * counts: weight_i / sum_of_candidate_weights.
+   */
+  chanceFor(answer: string): number {
+    if (!this.state.currentQuote) return 0;
+    const weightOf = (n: string) => this.weights.find(w => w.name === n)?.weight ?? 0;
+    const total = this.state.currentQuote.possibleAnswers.reduce((sum, c) => sum + weightOf(c), 0);
+    if (total === 0) return 0;
+    return weightOf(answer) / total;
+  }
+
   get isRevealed(): boolean {
     return !!this.state.lastReveal && this.state.lastReveal.index === this.state.currentQuote?.index;
   }
