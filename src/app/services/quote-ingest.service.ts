@@ -51,12 +51,10 @@ export class QuoteIngestService {
 
   /** Defensive post-filter for quotes that survived the regex but read badly on the TV. */
   private isPlayableQuote(quote: string): boolean {
-    if (/[\r\n]/.test(quote)) return false;              // multi-line artifact
+    if (/[\r\n]/.test(quote)) return false;       // multi-line artifact
     if (quote.length < 2 || quote.length > 280) return false;
-    if (/^\s*$/.test(quote)) return false;                // pure whitespace
-    if (!/[A-Za-z]/.test(quote)) return false;            // no letters (e.g. "...")
-    if (/\[\d{1,2}:\d{2}\s*(AM|PM)?\]/i.test(quote)) return false; // Discord timestamp
-    if (/@\S+/.test(quote)) return false;                 // contains a mention
+    if (/^\s*$/.test(quote)) return false;         // pure whitespace
+    if (!/[A-Za-z]/.test(quote)) return false;     // no letters (e.g. "...")
     return true;
   }
 

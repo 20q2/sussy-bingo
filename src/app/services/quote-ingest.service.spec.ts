@@ -24,7 +24,24 @@ describe('QuoteIngestService', () => {
     expect(connor?.weight).toBe(1);
   });
 
-  it('filters out multi-line / mention / timestamp artifacts and keeps the real punchline', async () => {
+  it('keeps both attributed quotes when separated by a timestamp line', async () => {
+    // Two valid quotes posted at different points in the night with a Discord
+    // timestamp marker on its own line in between. Both should be parsed.
+    const promise = svc.load();
+    const req = http.expectOne('assets/ingest_file.txt');
+    req.flush([
+      `"I will then pass my turn without gaining life" -Con (edited)`,
+      `[9:09 PM]`,
+      `"I'm going to sacrifice the Stimulus Package" -Ship`,
+    ].join('\n'));
+    const result = await promise;
+    expect(result.quotes.length).toBe(2);
+    const texts = result.quotes.map(q => q.quote);
+    expect(texts).toContain('I will then pass my turn without gaining life');
+    expect(texts).toContain("I'm going to sacrifice the Stimulus Package");
+  });
+
+  it('filters out multi-line artifacts and keeps the real punchline', async () => {
     // Mirrors the Discord paste-shape the user flagged: a setup quote with a
     // mention, a [timestamp] line, then the real attributed quote on the next line.
     const promise = svc.load();
