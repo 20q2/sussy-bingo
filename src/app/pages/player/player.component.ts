@@ -131,18 +131,27 @@ export class PlayerComponent implements OnInit, OnDestroy {
    * re-render and chips dropped by different players on the same cell don't
    * stack perfectly on top of each other.
    *
-   * Polar placement: chips always sit on a ring 16-22px from cell center so
-   * the name underneath stays readable.
+   * Polar placement biased to the top/bottom of the cell: chips fall in a
+   * 60°-wide arc centered on the vertical axis (top half OR bottom half),
+   * leaving the horizontal band clear so the name stays readable.
    */
   private chipScatter(playerId: string, row: number, col: number): { ox: number; oy: number; rot: number } {
     const key = `${playerId}#${row},${col}`;
     let h = 0;
     for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) | 0;
-    const angle = ((h & 0xff) / 255) * Math.PI * 2;
-    const radius = 16 + (((h >> 8) & 0xff) / 255) * 6;     // 16..22 px
+    const arcSpan = Math.PI / 3;                                          // 60° wide arc
+    const arcPos = (h & 0xff) / 255;                                       // 0..1 within the arc
+    const isTop = (((h >> 24) ^ (h >> 30)) & 1) === 0;                     // pick top vs bottom from hash
+    // Top arc:    angles -2π/3 .. -π/3  (centered on -π/2 / cell top)
+    // Bottom arc: angles  π/3 .. 2π/3   (centered on  π/2 / cell bottom)
+    const arcStart = isTop
+      ? -Math.PI / 2 - arcSpan / 2
+      :  Math.PI / 2 - arcSpan / 2;
+    const angle = arcStart + arcPos * arcSpan;
+    const radius = 18 + (((h >> 8) & 0xff) / 255) * 6;                     // 18..24 px
     const ox = +(Math.cos(angle) * radius).toFixed(1);
     const oy = +(Math.sin(angle) * radius).toFixed(1);
-    const rot = +((((h >> 16) & 0xff) / 255 - 0.5) * 50).toFixed(1); // -25..+25 deg
+    const rot = +((((h >> 16) & 0xff) / 255 - 0.5) * 50).toFixed(1);       // -25..+25 deg
     return { ox, oy, rot };
   }
 
