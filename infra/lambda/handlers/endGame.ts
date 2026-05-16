@@ -16,8 +16,10 @@ export async function handleEndGame(connectionId: string, endpoint: string): Pro
 
   const players = await listPlayers(session.cardId);
   for (const p of players) {
-    await putPlayer(session.cardId, { ...p, card: null, score: 0 });
+    await putPlayer(session.cardId, { ...p, card: null, score: 0, tokenId: null });
   }
-  const summaries: PlayerSummary[] = players.map(p => ({ playerId: p.playerId, name: p.name }));
+  const summaries: PlayerSummary[] = players.map(p => ({
+    playerId: p.playerId, name: p.name, tokenId: null,
+  }));
   await broadcastToAll(endpoint, { type: 'returned_to_lobby', players: summaries });
 }
