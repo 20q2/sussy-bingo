@@ -94,6 +94,7 @@
           <span class="placements">
             <app-token-avatar class="dropped"
               *ngFor="let p of placementsAt(rIdx, cIdx); trackBy: trackPlacement"
+              [class.sticky]="p.sticky"
               [tokenId]="p.tokenId"
               size="sm"
               [style.--chip-ox.px]="p.ox"

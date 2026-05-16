@@ -19,6 +19,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
   currentPick: { row: number; col: number } | null = null;
   /** Permanent per-cell outcome history keyed by "r,c". */
   cellMarks = new Map<string, 'correct' | 'incorrect'>();
+  /** Past correct placements by OTHER players, kept as ghost chips on this card.
+   *  Key: "playerId@row,col" — a player can have multiple sticky chips across rounds. */
+  stickyCorrect = new Map<string, { playerId: string; row: number; col: number }>();
   /** Name from the quote's possible-answer chips the player tapped to spotlight on the board. */
   highlightedName: string | null = null;
   private lastSeenRevealIndex: number | null = null;
@@ -73,6 +76,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       // Reset cell marks whenever a fresh card arrives (new game / new round).
       if (s.card !== wasCard) {
         this.cellMarks.clear();
+        this.stickyCorrect.clear();
         this.currentPick = null;
         this.lastSeenQuoteIndex = null;
         this.lastSeenRevealIndex = null;
@@ -95,6 +99,18 @@ export class PlayerComponent implements OnInit, OnDestroy {
           if (pickedName === s.lastReveal.truth) {
             this.cellMarks.set(`${this.currentPick.row},${this.currentPick.col}`, 'correct');
           }
+        }
+        // Snapshot every OTHER player's correct placement so their chip
+        // lingers on my board at reduced opacity even after the round ends.
+        for (const p of s.lastReveal.perPlayer) {
+          if (!p.correct) continue;
+          if (p.playerId === s.me?.playerId) continue;
+          const placement = s.placements?.[p.playerId];
+          if (!placement) continue;
+          this.stickyCorrect.set(
+            `${p.playerId}@${placement.row},${placement.col}`,
+            { playerId: p.playerId, row: placement.row, col: placement.col },
+          );
         }
       }
     }));
@@ -134,14 +150,26 @@ export class PlayerComponent implements OnInit, OnDestroy {
     return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
   }
 
-  placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number }> {
-    const out: Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number }> = [];
+  placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number; sticky: boolean }> {
+    const out: Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number; sticky: boolean }> = [];
+    const seen = new Set<string>();
+    // Live placements first (full opacity).
     for (const playerId of Object.keys(this.state.placements ?? {})) {
       const pos = this.state.placements[playerId];
       if (pos.row !== row || pos.col !== col) continue;
+      seen.add(playerId);
       const tokenId = this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
       const scatter = this.chipScatter(playerId, row, col);
-      out.push({ playerId, tokenId, ...scatter });
+      out.push({ playerId, tokenId, ...scatter, sticky: false });
+    }
+    // Sticky chips from past correct rounds (reduced opacity), skipping any
+    // player who already has a live chip at this cell to avoid double-rendering.
+    for (const entry of this.stickyCorrect.values()) {
+      if (entry.row !== row || entry.col !== col) continue;
+      if (seen.has(entry.playerId)) continue;
+      const tokenId = this.state.players.find(p => p.playerId === entry.playerId)?.tokenId ?? null;
+      const scatter = this.chipScatter(entry.playerId, row, col);
+      out.push({ playerId: entry.playerId, tokenId, ...scatter, sticky: true });
     }
     return out;
   }
