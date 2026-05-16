@@ -119,6 +119,14 @@ export class HostComponent implements OnDestroy, OnInit {
     this.ws.send({ type: 'end_game' });
   }
 
+  clearLobbyConfirming = false;
+  clearLobbyRequest(): void { this.clearLobbyConfirming = true; }
+  clearLobbyCancel(): void { this.clearLobbyConfirming = false; }
+  clearLobbyConfirm(): void {
+    this.clearLobbyConfirming = false;
+    this.ws.send({ type: 'clear_lobby' });
+  }
+
   tokenIdFor(playerId: string): string | null {
     return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
   }

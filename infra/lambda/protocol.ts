@@ -12,7 +12,8 @@ export type ClientMessage =
   | { type: 'guess'; quoteIndex: number; guess: string }
   | { type: 'reveal'; truth: string }
   | { type: 'end_game' }
-  | { type: 'pick_token'; tokenId: string | null };
+  | { type: 'pick_token'; tokenId: string | null }
+  | { type: 'clear_lobby' };
 
 // Server → Client
 export type ServerMessage =
@@ -33,7 +34,8 @@ export type ServerMessage =
       leaderboard: LeaderboardEntry[] }
   | { type: 'returned_to_lobby'; players: PlayerSummary[] }
   | { type: 'error'; reason: string }
-  | { type: 'pick_rejected'; reason: 'taken' | 'unknown_token' | 'game_started' };
+  | { type: 'pick_rejected'; reason: 'taken' | 'unknown_token' | 'game_started' }
+  | { type: 'lobby_cleared' };
 
 export interface LeaderboardEntry { playerId: string; name: string; score: number; }
 export interface PlayerSummary { playerId: string; name: string; tokenId: string | null; }

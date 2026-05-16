@@ -87,6 +87,9 @@ export class GameStateService {
       case 'pick_rejected':
         console.warn('pick rejected:', msg.reason);
         return;
+      case 'lobby_cleared':
+        this.subject.next({ ...initial, phase: 'lobby' });
+        return;
       case 'error':
         console.error('server error', msg.reason);
         return;

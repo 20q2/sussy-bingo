@@ -36,11 +36,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.needsName = true;
     }
     this.sub.add(this.game.state$.subscribe(s => {
+      const wasMe = this.state.me;
       this.state = s;
       if (s.me && !this.identity.snapshot()) {
         this.identity.save({ playerId: s.me.playerId, name: s.me.name, cardId: s.me.cardId });
       } else if (s.me && this.identity.snapshot()?.cardId !== s.me.cardId) {
         this.identity.save({ playerId: s.me.playerId, name: s.me.name, cardId: s.me.cardId });
+      } else if (wasMe && !s.me) {
+        // Host cleared the lobby. Force the player back to the name-entry screen.
+        this.identity.clear();
+        this.needsName = true;
+        this.nameInput = '';
       }
     }));
   }

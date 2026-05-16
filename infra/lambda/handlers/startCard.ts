@@ -1,4 +1,4 @@
-import { ClientMessage, LeaderboardEntry } from '../protocol';
+import { ClientMessage, LeaderboardEntry, PlayerSummary } from '../protocol';
 import { getCardSession, writeCardSession, listPlayers, putPlayer, generateCard } from '../state';
 import { getConnection, listAllConnections } from '../connections';
 import { broadcastToAll, sendTo } from '../broadcast';
@@ -53,6 +53,13 @@ export async function handleStartCard(
     weights: msg.weights,
     currentQuoteIndex: 0,
   });
+
+  // Broadcast updated player summaries so clients see auto-assigned tokenIds
+  // throughout the live phase (leaderboard, reveal, host tiles).
+  const summaries: PlayerSummary[] = players.map(p => ({
+    playerId: p.playerId, name: p.name, tokenId: p.tokenId,
+  }));
+  await broadcastToAll(endpoint, { type: 'lobby_update', players: summaries });
 
   const leaderboard: LeaderboardEntry[] = players
     .map(p => ({ playerId: p.playerId, name: p.name, score: 0 }))

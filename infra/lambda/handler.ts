@@ -3,7 +3,7 @@ import type {
   APIGatewayProxyResultV2,
 } from 'aws-lambda';
 import { isClientMessage, ClientMessage } from './protocol';
-import { putConnection, deleteConnection } from './connections';
+import { putConnection } from './connections';
 import { handleJoin } from './handlers/join';
 import { handleHostHello } from './handlers/hostHello';
 import { handleStartCard } from './handlers/startCard';
@@ -12,6 +12,8 @@ import { handleGuess } from './handlers/guess';
 import { handleReveal } from './handlers/reveal';
 import { handleEndGame } from './handlers/endGame';
 import { handlePickToken } from './handlers/pickToken';
+import { handleClearLobby } from './handlers/clearLobby';
+import { handleDisconnect } from './handlers/disconnect';
 
 export const handler = async (
   event: APIGatewayProxyWebsocketEventV2,
@@ -31,7 +33,7 @@ export const handler = async (
       return { statusCode: 200, body: 'connected' };
     }
     if (routeKey === '$disconnect') {
-      await deleteConnection(connectionId);
+      await handleDisconnect(connectionId, endpoint);
       return { statusCode: 200, body: 'disconnected' };
     }
     // $default
@@ -68,6 +70,7 @@ async function dispatch(msg: ClientMessage, connId: string, endpoint: string): P
     case 'reveal': return handleReveal(msg, connId, endpoint);
     case 'end_game': return handleEndGame(connId, endpoint);
     case 'pick_token': return handlePickToken(msg, connId, endpoint);
+    case 'clear_lobby': return handleClearLobby(connId, endpoint);
     default:
       console.warn('unhandled message type', msg.type);
   }

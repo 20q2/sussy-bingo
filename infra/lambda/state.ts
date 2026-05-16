@@ -104,6 +104,13 @@ export async function listPlayers(cardId: string): Promise<PlayerRow[]> {
   }));
 }
 
+export async function deletePlayer(cardId: string, playerId: string): Promise<void> {
+  await ddb.send(new DeleteCommand({
+    TableName: TABLE(),
+    Key: { PK: cardScopedPK(cardId), SK: playerSK(playerId) },
+  }));
+}
+
 export async function deletePlayerCard(cardId: string, playerId: string): Promise<void> {
   const p = await getPlayer(cardId, playerId);
   if (!p) return;
