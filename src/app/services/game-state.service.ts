@@ -84,6 +84,9 @@ export class GameStateService {
       case 'returned_to_lobby':
         this.subject.next({ ...s, phase: 'lobby', card: null, currentQuote: null, yourGuess: null, lastReveal: null, players: msg.players, leaderboard: [] });
         return;
+      case 'pick_rejected':
+        console.warn('pick rejected:', msg.reason);
+        return;
       case 'error':
         console.error('server error', msg.reason);
         return;
