@@ -1,6 +1,6 @@
 <div class="player">
   <header class="hdr" *ngIf="!needsName">
-    <a routerLink="/" class="brand-link"><span class="brand">SUSSY BINGO</span></a>
+    <a routerLink="/" class="brand-link"><span class="brand">SUSSY <span>BINGO</span></span></a>
     <div class="me-badge" *ngIf="state.me && state.phase === 'live'">
       <app-token-avatar [tokenId]="myTokenId" size="sm"></app-token-avatar>
       <span class="me-name">{{ state.me.name }}</span>

@@ -80,6 +80,7 @@
   cursor: pointer;
   text-shadow: -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 1px 1px 0 var(--ink);
 }
+.brand span { color: var(--accent-purple); }
 .welcome, .lobby-title {
   font-family: 'Beleren', 'Roboto', serif;
   font-weight: 400;
