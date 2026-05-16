@@ -17,7 +17,23 @@
       "Bash(npx --yes wscat@6 -c wss://xybej7pfk0.execute-api.us-east-1.amazonaws.com/production -x '{\"action\":\"msg\",\"body\":{\"type\":\"host_hello\"}}' --wait 4)",
       "Bash(tee /tmp/wsout.log)",
       "Bash(echo \"--- exit $? ---\")",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Read(//a/Coding/sussy-bingo-tokens/**)",
+      "Bash(npm run *)",
+      "Bash(npx ts-node *)",
+      "Bash(node -e \"const t = require\\('./src/assets/tokens.json'\\); console.log\\(t.length, t[0]\\);\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const t=JSON.parse\\(fs.readFileSync\\('A:/Coding/sussy-bingo-tokens/src/assets/tokens.json','utf8'\\)\\); console.log\\(t.length, JSON.stringify\\(t[0]\\)\\);\")",
+      "Bash(npx jest *)",
+      "Bash(npx vitest *)",
+      "Bash(./node_modules/.bin/vitest run *)",
+      "Bash(npx ng *)",
+      "Bash(git -C a:/Coding/sussy-bingo-tokens log --oneline main..HEAD)",
+      "Bash(git -C a:/Coding/sussy-bingo-tokens status --short)",
+      "Bash(git merge *)"
+    ],
+    "additionalDirectories": [
+      "a:\\Coding\\sussy-bingo-tokens\\tools",
+      "a:\\Coding\\sussy-bingo-tokens"
     ]
   }
 }
