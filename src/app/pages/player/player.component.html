@@ -52,16 +52,18 @@
   </ng-container>
 
   <ng-container *ngIf="!needsName && state.phase === 'live' && state.card">
-    <div class="quote-area sb-card" *ngIf="state.currentQuote">
+    <div class="quote-area sb-card"
+         *ngFor="let q of (state.currentQuote ? [state.currentQuote] : []); trackBy: trackQuoteIndex">
       <div class="quote-header">
-        <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
+        <div class="quote-index">Quote #{{ q.index }}</div>
         <div class="quote-hint">Tap name to filter</div>
       </div>
-      <blockquote>"{{ state.currentQuote.quote }}"</blockquote>
+      <blockquote>"{{ q.quote }}"</blockquote>
       <div class="possibles">
         <button type="button"
                 class="possible-chip"
-                *ngFor="let a of state.currentQuote.possibleAnswers"
+                *ngFor="let a of q.possibleAnswers; let i = index"
+                [style.animation-delay.ms]="60 + i * 55"
                 [class.highlighted]="highlightedName === a"
                 [class.locked]="state.yourGuess === a && !state.lastReveal"
                 (click)="onChipTap(a)">{{ a }}</button>

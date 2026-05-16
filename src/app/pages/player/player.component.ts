@@ -140,6 +140,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   trackPlacement(_: number, p: { playerId: string }): string { return p.playerId; }
 
+  trackQuoteIndex(_: number, q: { index: number }): number { return q.index; }
+
   markFor(row: number, col: number): 'correct' | 'incorrect' | null {
     return this.cellMarks.get(`${row},${col}`) ?? null;
   }
