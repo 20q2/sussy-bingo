@@ -56,6 +56,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name });
   }
 
+  onPickToken(tokenId: string | null): void {
+    this.ws.send({ type: 'pick_token', tokenId });
+  }
+
   private rejoin(): void {
     const cached = this.identity.snapshot();
     if (cached) this.ws.send({ type: 'join', name: cached.name, playerId: cached.playerId });

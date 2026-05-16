@@ -35,9 +35,16 @@
       <div class="lobby-divider">Players in the room</div>
       <ul class="lobby-players">
         <li *ngFor="let p of state.players" [class.you]="p.playerId === state.me?.playerId">
-          {{ p.name }}
+          <app-token-avatar [tokenId]="p.tokenId" size="sm"></app-token-avatar>
+          <span class="lobby-player-name">{{ p.name }}</span>
         </li>
       </ul>
+      <app-token-picker
+        *ngIf="state.me"
+        [myPlayerId]="state.me.playerId"
+        [players]="state.players"
+        (pick)="onPickToken($event)">
+      </app-token-picker>
     </div>
   </ng-container>
 

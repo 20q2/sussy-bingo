@@ -247,6 +247,13 @@
   to   { transform: scale(1); opacity: 1; }
 }
 
+.lobby-players li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lobby-player-name { flex: 1; }
+
 /* Score bar */
 .score-bar {
   display: flex;
