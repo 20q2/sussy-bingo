@@ -1,5 +1,7 @@
 /* ===== Sussy Bingo theme ===== */
 
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Permanent+Marker&display=swap');
+
 @font-face {
   font-family: 'Beleren';
   src: url('assets/beleren.woff') format('woff');
@@ -9,18 +11,26 @@
 }
 
 :root {
-  --bg-deep: #0e1027;
-  --bg-card: #1c2042;
-  --bg-card-2: #262a55;
-  --border: #3a3f73;
+  --bg-deep: #1d2150;
+  --bg-card: #2c3070;
+  --bg-card-2: #3a3f8a;
+  --border: #5258a8;
   --text-bright: #fefae0;
-  --text-dim: #a8acd1;
+  --text-dim: #c5c9eb;
   --accent-yellow: #ffd166;
   --accent-green: #06d6a0;
   --accent-red: #ef476f;
   --accent-blue: #4cc9f0;
   --accent-purple: #b18aff;
   --accent-orange: #ff8c42;
+}
+
+/* Ambient page atmosphere — soft chromatic glow across the body */
+body {
+  background:
+    radial-gradient(ellipse at top right, rgba(76, 201, 240, 0.10), transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(239, 71, 111, 0.10), transparent 55%),
+    var(--bg-deep);
 }
 
 html, body { height: 100%; }

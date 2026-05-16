@@ -1,4 +1,4 @@
-<div class="player" [style.background-image]="'linear-gradient(rgba(14,16,39,0.78), rgba(14,16,39,0.92)), url(' + backgroundUrl + ')'">
+<div class="player" [style.background-image]="'url(' + backgroundUrl + ')'">
   <header class="hdr" *ngIf="!needsName">
     <a routerLink="/" class="brand-link"><span class="brand">SUSSY BINGO</span></a>
     <span class="sb-pill"
@@ -30,8 +30,14 @@
 
   <ng-container *ngIf="!needsName && state.phase === 'lobby'">
     <div class="lobby sb-card">
-      <h2 class="lobby-title">Hang tight…</h2>
-      <p class="lobby-sub">You're in as <strong>{{ state.me?.name }}</strong></p>
+      <ng-container *ngIf="!myTokenId; else picked">
+        <h2 class="lobby-title">You're in, {{ state.me?.name }}!</h2>
+        <p class="lobby-sub">Pick an avatar while we wait for the host.</p>
+      </ng-container>
+      <ng-template #picked>
+        <h2 class="lobby-title">Okay, hang tight…</h2>
+        <p class="lobby-sub">Waiting for the host to start the game.</p>
+      </ng-template>
       <app-token-picker
         *ngIf="state.me"
         [myPlayerId]="state.me.playerId"

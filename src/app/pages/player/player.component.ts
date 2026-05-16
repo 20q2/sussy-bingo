@@ -32,6 +32,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     public game: GameStateService,
   ) { this.state = game.snapshot(); }
 
+  get myTokenId(): string | null {
+    const meId = this.state.me?.playerId;
+    if (!meId) return null;
+    return this.state.players.find(p => p.playerId === meId)?.tokenId ?? null;
+  }
+
   ngOnInit(): void {
     this.backgroundUrl = this.pickBackground();
     this.ws.onReconnect = () => this.rejoin();
