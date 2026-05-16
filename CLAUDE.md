@@ -12,6 +12,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Angular CLI 13.3.x / TypeScript 4.5. Node 20.x.
 
+## Style / design system
+
+See [`docs/style-guide.md`](docs/style-guide.md) for the visual language: color tokens, fonts, the "sticker recipe" (cream paper + 3px ink outline + offset shadow + press-down) used across the player view, the Quiplash-style component patterns, and authoring rules. Read this before touching anything in `src/app/pages/player/`, `src/app/components/token-*/`, or `src/styles.scss`.
+
 ## Architecture
 
 Angular 13 single-page app. Despite the multiple folders, almost all logic lives in one component (`src/app/app.component.ts`) and the routing is trivial — `''` and `/home` both render `AppComponent`.
