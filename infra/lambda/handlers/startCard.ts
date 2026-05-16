@@ -56,6 +56,7 @@ export async function handleStartCard(
     weights: msg.weights,
     currentQuoteIndex: 0,
     card,
+    lockedCells: {},
   });
 
   // Broadcast updated player summaries so clients see auto-assigned tokenIds

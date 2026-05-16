@@ -1,11 +1,12 @@
 # Sussy Bingo Style Guide
 
-The visual language is *Jackbox-style party game, MTG-flavored*. Two screens, two registers:
+The visual language is *Jackbox-style party game, MTG-flavored*. Both screens — player phone and host TV — share the same bright sticker-book register:
 
-- **Player phone** — bright, playful, hand-drawn. Cream paper + thick black outlines + marker fonts on a saturated party gradient.
-- **Host TV** — dark, atmospheric, MTG-formal. Saturated radial glows on a deep navy backdrop, Beleren serif on headings, leaderboard + reveal animations.
+- Cream paper surfaces on a saturated orange→pink→purple party gradient
+- 3px ink-black outlines and flat offset shadows on every interactive surface
+- Permanent Marker for ceremony/loud, Caveat for body/playful, near-black `--ink` on cream
 
-Both views share the same CSS vars and the same chunky "press-down" button language, but they invert almost everything else.
+The host view is just a wider, leaderboard-equipped layout of the same sticker language — not a separate dark register.
 
 ## Color tokens
 
@@ -15,12 +16,12 @@ Defined in [`src/styles.scss`](../src/styles.scss).
 
 | Variable | Value | Use |
 |---|---|---|
-| `--bg-deep` | `#1d2150` | Host TV background; player fallback `background-color` |
-| `--bg-card` | `#2c3070` | Host card surfaces |
-| `--bg-card-2` | `#3a3f8a` | Host secondary cards / inputs |
-| `--border` | `#5258a8` | Host card borders / dividers |
-| `--text-bright` | `#fefae0` | Host primary text |
-| `--text-dim` | `#c5c9eb` | Host secondary text |
+| `--bg-deep` | `#1d2150` | Body fallback only — neither view uses this as a primary surface anymore |
+| `--bg-card` | `#2c3070` | (legacy) |
+| `--bg-card-2` | `#3a3f8a` | (legacy) |
+| `--border` | `#5258a8` | (legacy) |
+| `--text-bright` | `#fefae0` | (legacy) |
+| `--text-dim` | `#c5c9eb` | (legacy) |
 
 ### Accents (shared)
 
@@ -33,16 +34,16 @@ Defined in [`src/styles.scss`](../src/styles.scss).
 | `--accent-purple` | `#b18aff` | Brand secondary |
 | `--accent-orange` | `#ff8c42` | Warm-side gradient stop |
 
-### Player-only (defined on the `:host` of `player.component.scss`)
+### Sticker palette (defined on the `:host` of both `player.component.scss` and `host.component.scss`)
 
 | Variable | Value | Use |
 |---|---|---|
 | `--paper` | `#fffaee` | Cream card surface |
 | `--paper-warm` | `#fff1d0` | Cell "highlighted" tint |
 | `--ink` | `#1a1330` | All borders, outlines, and text on cream/white |
-| `--tile` | `#ffffff` | Bingo cell + chip surface |
+| `--tile` | `#ffffff` | Bingo cell, chip, answer-card surface |
 
-**Rule:** never mix `--ink` with `--text-bright` in the same component. Player view is cream-on-bright; host view is bright-on-dark. They don't cross.
+**Rule:** don't reach for `--text-bright`/`--bg-card` anywhere in the active app. Both views are ink-on-cream.
 
 ## Typography
 
@@ -50,10 +51,10 @@ Loaded in [`src/styles.scss`](../src/styles.scss). Three fonts, three jobs.
 
 | Font | Role | Where |
 |---|---|---|
-| **Permanent Marker** | Ceremonial / loud / fun | Brand wordmark, `.welcome` / `.lobby-title` / `.connecting-title`, reveal banners, picker title ("Pick your avatar") |
-| **Caveat** (700) | Body / playful | Cell names, possible-answer chips, name input, me-badge, dropped tokens' labels, reveal truth line |
-| **Beleren** (local woff) | MTG ceremony | Host brand, host headings, host reveal moments. **Player view does not use Beleren** anymore — it reads as formal where we want casual |
-| **Roboto** (system) | Chrome / metadata | Quote text, status pills, "tap name to filter" hints, host body copy |
+| **Permanent Marker** | Ceremonial / loud / fun | Brand wordmark (both views), `.welcome` / `.lobby-title` / `.connecting-title` / `.leaderboard-title`, reveal banners, primary action buttons on host, picker title |
+| **Caveat** (700) | Body / playful | Cell names, answer cards, possible-answer chips, name input, me-badge, leaderboard rows, lobby player tiles, host icon buttons |
+| **Beleren** (local woff) | MTG fallback | Kept loaded as a fallback for `'Permanent Marker'`. Not used as a primary face — Beleren is all-caps and strips case/punctuation flavor out of quoted text. |
+| **Roboto** (system) | Chrome / metadata / quote voice | Status pills, "tap name to filter" hints, ✓ glyph, and the host `.big-quote` itself (italic, weight 500) — preserves case and punctuation so quote flavor survives. |
 
 ### Rule of thumb
 
@@ -93,22 +94,13 @@ Orange → pink → purple base, sun-glow at top-right (yellow), cyan glow at bo
 
 ### Host
 
-Defined inline in [`host.component.scss`](../src/app/pages/host/host.component.scss):
-
-```scss
-background:
-  radial-gradient(ellipse at top right, rgba(76, 201, 240, 0.14), transparent 60%),
-  radial-gradient(ellipse at bottom left, rgba(239, 71, 111, 0.12), transparent 60%),
-  var(--bg-deep);
-```
-
-Dark navy with subtle cyan/red glows. The TV is intentionally calm so the colored answer cards / leaderboard / reveal pulses can carry the visual energy.
+Same warm gradient as the player, defined inline in [`host.component.scss`](../src/app/pages/host/host.component.scss). The host adds `background-attachment: fixed` so the gradient sits still while the page scrolls — matching the player feel on a larger surface.
 
 ## Component patterns
 
-### `.sb-card` (global) — Player view override
+### `.sb-card` (global) — Sticker override in both views
 
-The global `.sb-card` is a dark surface. The player view scopes an override that flips it to cream-paper-with-black-outline. See `.player .sb-card` block in `player.component.scss`. If you add new card surfaces inside the player view, give them class `sb-card` and they'll inherit the sticker treatment for free.
+The global `.sb-card` is still defined as a dark surface for legacy reasons, but both `.player` and `.host` scope an override that flips it to cream-paper-with-black-outline + offset shadow. New card surfaces inside either view should use class `sb-card` and inherit the sticker treatment for free.
 
 ### `.sb-pill` (global)
 
@@ -168,7 +160,7 @@ All defined in `player.component.scss`.
 - **Shadows are flat, not blurred.** The offset shadow `0 4px 0 var(--ink)` is the design signature; don't add `blur` to it.
 - **Tilts are subtle.** ±0.5° to ±2° on cells, slightly larger on dropped tokens. Never ±5°+; it stops feeling intentional.
 - **One playful font per element, max.** Don't mix Permanent Marker with Caveat on the same line.
-- **Host view changes need their own SCSS.** Player overrides are scoped under `.player ...`; they don't leak.
+- **Scope view-specific overrides under `.player` or `.host`.** Both views speak the same sticker language but have different layouts, so component sizing/spacing should stay scoped per view.
 - **New player-view components should follow the sticker recipe.** Cream paper + black outline + offset shadow + press-down on active. Anything else will look out of place.
 
 ## File map

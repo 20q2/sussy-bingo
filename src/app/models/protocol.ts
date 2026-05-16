@@ -35,7 +35,8 @@ export type ServerMessage =
   | { type: 'returned_to_lobby'; players: PlayerSummary[] }
   | { type: 'error'; reason: string }
   | { type: 'pick_rejected'; reason: 'taken' | 'unknown_token' | 'game_started' }
-  | { type: 'lobby_cleared' };
+  | { type: 'lobby_cleared' }
+  | { type: 'bingo'; winners: Array<{ playerId: string; name: string; line: Array<[number, number]> }> };
 
 export interface LeaderboardEntry { playerId: string; name: string; score: number; }
 export interface PlayerSummary { playerId: string; name: string; tokenId: string | null; }

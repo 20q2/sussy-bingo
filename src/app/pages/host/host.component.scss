@@ -246,6 +246,66 @@
 }
 .how-to-play strong { font-weight: 800; }
 
+/* ===== Bingo win banner (host) ===== */
+.bingo-banner {
+  margin: 1rem auto 0;
+  max-width: 540px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  background: var(--accent-yellow);
+  text-align: center;
+  animation: bingo-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 1100ms backwards;
+}
+.bingo-headline {
+  font-family: 'Permanent Marker', 'Beleren', cursive;
+  font-size: 3.4rem;
+  line-height: 1;
+  color: var(--ink);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+}
+.bingo-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 0.6rem;
+}
+.bingo-winners {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.bingo-winners li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--tile);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.25rem 0.95rem 0.25rem 0.3rem;
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.bingo-winners ::ng-deep .avatar.size-md { width: 36px; height: 36px; outline: 3px solid var(--ink); outline-offset: -3px; }
+.bingo-hint {
+  margin: 0.9rem 0 0;
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink);
+  opacity: 0.75;
+}
+@keyframes bingo-pop {
+  0%   { transform: scale(0.5) rotate(-6deg); opacity: 0; }
+  60%  { transform: scale(1.06) rotate(2deg);  opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
 /* ===== Quote / live ===== */
 .quote-index {
   font-size: 0.8rem;

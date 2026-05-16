@@ -12,7 +12,7 @@ export async function handleEndGame(connectionId: string, endpoint: string): Pro
   const session = await getCardSession();
   if (!session) return;
 
-  await writeCardSession({ ...session, phase: 'lobby', currentQuoteIndex: 0, weights: undefined, card: undefined });
+  await writeCardSession({ ...session, phase: 'lobby', currentQuoteIndex: 0, weights: undefined, card: undefined, lockedCells: undefined });
 
   const players = await listPlayers(session.cardId);
   for (const p of players) {

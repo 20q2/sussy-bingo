@@ -15,7 +15,7 @@ export async function handleGuess(
     });
     return;
   }
-  const outcome = await recordGuess(conn.cardId, msg.quoteIndex, conn.playerId, msg.guess);
+  const outcome = await recordGuess(conn.cardId, msg.quoteIndex, conn.playerId, msg.guess, msg.row, msg.col);
   if (outcome === 'ok') {
     await sendTo(endpoint, connectionId, { type: 'guess_ack', quoteIndex: msg.quoteIndex, guess: msg.guess });
     await broadcastToAll(endpoint, {

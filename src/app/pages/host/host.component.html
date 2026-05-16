@@ -50,25 +50,25 @@
       <ng-container *ngIf="state.phase === 'live'">
         <ng-container *ngIf="state.currentQuote; else noQuote">
           <div class="quote-stack" [@quoteIn]="state.currentQuote.index">
-          <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
-          <blockquote class="big-quote">{{ state.currentQuote.quote }}</blockquote>
+            <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
+            <blockquote class="big-quote">{{ state.currentQuote.quote }}</blockquote>
 
-          <div class="answers-grid" [class.is-revealed]="isRevealed">
-            <div class="answer-card"
-                 *ngFor="let a of state.currentQuote.possibleAnswers"
-                 [class.truth]="isRevealed && state.lastReveal!.truth === a"
-                 [class.wrong]="isRevealed && state.lastReveal!.truth !== a">
-              <span class="answer-chance">{{ chanceFor(a) | percent:'1.0-0' }}</span>
-              <div class="answer-name">{{ a }}</div>
-              <ul class="guessers" *ngIf="isRevealed">
-                <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">
-                  <app-token-avatar [tokenId]="tokenIdFor(g.playerId)" size="sm"></app-token-avatar>
-                  <span class="guesser-name">{{ g.name }}</span>
-                </li>
-                <li *ngIf="!guessersFor(a).length" class="no-guess">—</li>
-              </ul>
+            <div class="answers-grid" [class.is-revealed]="isRevealed">
+              <div class="answer-card"
+                   *ngFor="let a of state.currentQuote.possibleAnswers"
+                   [class.truth]="isRevealed && state.lastReveal!.truth === a"
+                   [class.wrong]="isRevealed && state.lastReveal!.truth !== a">
+                <span class="answer-chance">{{ chanceFor(a) | percent:'1.0-0' }}</span>
+                <div class="answer-name">{{ a }}</div>
+                <ul class="guessers" *ngIf="isRevealed">
+                  <li *ngFor="let g of guessersFor(a)" [class.correct]="g.correct">
+                    <app-token-avatar [tokenId]="tokenIdFor(g.playerId)" size="sm"></app-token-avatar>
+                    <span class="guesser-name">{{ g.name }}</span>
+                  </li>
+                  <li *ngIf="!guessersFor(a).length" class="no-guess">—</li>
+                </ul>
+              </div>
             </div>
-          </div>
           </div>
 
         </ng-container>
@@ -80,10 +80,29 @@
               <li><span class="step-num">1</span><span>A quote shows up with <strong>four suspects</strong>. Who said it?</span></li>
               <li><span class="step-num">2</span><span><strong>Tap that name</strong> on your bingo card to drop your token.</span></li>
               <li><span class="step-num">3</span><span>Right answer? <strong>Cell locks green</strong>. Wrong? Your token lifts off — no penalty, try again next round.</span></li>
-              <li><span class="step-num">4</span><span>Whoever has the <strong>most locked cells</strong> at the end wins.</span></li>
+              <li><span class="step-num">4</span><span>First to <strong>5 locked cells in a row</strong> wins! (horizontal, vertical, or diagonal — like real bingo)</span></li>
             </ol>
           </div>
         </ng-template>
+
+        <div class="bingo-banner sb-card" *ngIf="gameDecided">
+          <div class="bingo-headline">BINGO!</div>
+          <div class="bingo-sub">
+            <ng-container *ngIf="state.bingoWinners!.length === 1">
+              <strong>{{ state.bingoWinners![0].name }}</strong> got 5 in a row!
+            </ng-container>
+            <ng-container *ngIf="state.bingoWinners!.length > 1">
+              <strong>{{ state.bingoWinners!.length }} players</strong> tied with 5 in a row!
+            </ng-container>
+          </div>
+          <ul class="bingo-winners">
+            <li *ngFor="let w of state.bingoWinners">
+              <app-token-avatar [tokenId]="tokenIdFor(w.playerId)" size="md"></app-token-avatar>
+              <span>{{ w.name }}</span>
+            </li>
+          </ul>
+          <p class="bingo-hint">Hit <strong>End Game</strong> to head back to the lobby.</p>
+        </div>
 
         <div class="primary-action">
           <button *ngIf="canAdvance" class="sb-button primary big" (click)="nextQuote()">
@@ -91,6 +110,9 @@
           </button>
           <button *ngIf="canReveal" class="sb-button secondary big" (click)="reveal()">
             👁 Reveal Answer
+          </button>
+          <button *ngIf="gameDecided" class="sb-button danger big" (click)="endGameRequest()">
+            ⏹ End Game
           </button>
         </div>
       </ng-container>

@@ -88,6 +88,7 @@
                 [class.incorrect]="markFor(rIdx, cIdx) === 'incorrect'"
                 [class.is-truth]="state.lastReveal?.truth === name && state.lastReveal?.index === state.currentQuote?.index"
                 [class.highlighted]="highlightedName === name"
+                [class.winning-line]="isOnWinningLine(rIdx, cIdx)"
                 (click)="onSquareTap(rIdx, cIdx, name)">
           <span class="cell-name">{{ name }}</span>
           <span class="placements">
@@ -103,13 +104,37 @@
       </div>
     </div>
 
-    <div *ngIf="state.lastReveal" class="reveal-banner"
+    <div *ngIf="state.lastReveal && !state.bingoWinners?.length" class="reveal-banner"
          [class.win]="state.lastReveal.truth === state.yourGuess"
          [class.lose]="state.lastReveal.truth !== state.yourGuess && state.yourGuess">
       <ng-container *ngIf="state.lastReveal.truth === state.yourGuess">✅ Nailed it!</ng-container>
       <ng-container *ngIf="state.lastReveal.truth !== state.yourGuess && state.yourGuess">❌ Nope</ng-container>
       <ng-container *ngIf="!state.yourGuess">⏳ Missed it</ng-container>
       <div class="reveal-truth">It was <strong>{{ state.lastReveal.truth }}</strong></div>
+    </div>
+
+    <div *ngIf="state.bingoWinners?.length" class="bingo-banner sb-card" [class.mine]="amIBingoWinner">
+      <div class="bingo-headline">BINGO!</div>
+      <div class="bingo-sub">
+        <ng-container *ngIf="amIBingoWinner; else otherWinner">
+          <ng-container *ngIf="state.bingoWinners!.length === 1">You got 5 in a row!</ng-container>
+          <ng-container *ngIf="state.bingoWinners!.length > 1">You tied it up!</ng-container>
+        </ng-container>
+        <ng-template #otherWinner>
+          <ng-container *ngIf="state.bingoWinners!.length === 1">
+            <strong>{{ state.bingoWinners![0].name }}</strong> got 5 in a row.
+          </ng-container>
+          <ng-container *ngIf="state.bingoWinners!.length > 1">
+            <strong>{{ state.bingoWinners!.length }} players</strong> tied with 5 in a row.
+          </ng-container>
+        </ng-template>
+      </div>
+      <ul class="bingo-winners">
+        <li *ngFor="let w of state.bingoWinners">
+          <app-token-avatar [tokenId]="tokenIdFor(w.playerId)" size="sm"></app-token-avatar>
+          <span>{{ w.name }}</span>
+        </li>
+      </ul>
     </div>
 
   </ng-container>

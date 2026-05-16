@@ -119,7 +119,12 @@ export class HostComponent implements OnDestroy, OnInit {
   }
 
   get canAdvance(): boolean {
-    return !this.state.currentQuote || this.isRevealed;
+    return !this.gameDecided && (!this.state.currentQuote || this.isRevealed);
+  }
+
+  /** True once a bingo has been called — game frozen until host ends/restarts. */
+  get gameDecided(): boolean {
+    return !!this.state.bingoWinners?.length;
   }
 
   startCard(): void {

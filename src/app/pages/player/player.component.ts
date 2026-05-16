@@ -107,11 +107,31 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   onSquareTap(row: number, col: number, name: string): void {
+    if (this.state.bingoWinners?.length) return; // game decided — board frozen
     if (!this.state.currentQuote) return;
     if (this.state.lastReveal && this.state.lastReveal.index === this.state.currentQuote.index) return;
     if (this.cellMarks.has(`${row},${col}`)) return;
     this.currentPick = { row, col };
     this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name, row, col });
+  }
+
+  /** True if I'm one of the bingo co-winners. */
+  get amIBingoWinner(): boolean {
+    return !!this.state.bingoWinners?.some(w => w.playerId === this.state.me?.playerId);
+  }
+
+  /** Cells in my winning line, for grid highlighting. */
+  get myWinningLine(): Set<string> {
+    const me = this.state.bingoWinners?.find(w => w.playerId === this.state.me?.playerId);
+    return new Set((me?.line ?? []).map(([r, c]) => `${r},${c}`));
+  }
+
+  isOnWinningLine(row: number, col: number): boolean {
+    return this.myWinningLine.has(`${row},${col}`);
+  }
+
+  tokenIdFor(playerId: string): string | null {
+    return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
   }
 
   placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number }> {

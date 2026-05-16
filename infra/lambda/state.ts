@@ -13,6 +13,8 @@ export interface CardSession {
   currentQuoteIndex: number;
   weights?: { name: string; weight: number }[];
   card?: string[][];
+  /** Per-player list of cells they've correctly locked. Accumulates across the live phase. */
+  lockedCells?: Record<string, Array<[number, number]>>;
 }
 
 export async function getCardSession(): Promise<CardSession | null> {
@@ -26,6 +28,7 @@ export async function getCardSession(): Promise<CardSession | null> {
     phase: res.Item.phase,
     currentQuoteIndex: res.Item.currentQuoteIndex ?? 0,
     weights: res.Item.weights,
+    lockedCells: res.Item.lockedCells,
     card: res.Item.card,
   };
 }
@@ -184,12 +187,13 @@ export function generateCard(
   return grid;
 }
 
+export interface GuessRecord { guess: string; row: number; col: number; }
 export interface QuoteRound {
   index: number;
   quote: string;
   possibleAnswers: string[];
   truth: string | null;
-  guesses: Record<string, string>;
+  guesses: Record<string, GuessRecord>;
   revealed: boolean;
 }
 
@@ -224,7 +228,7 @@ export async function getQuoteRound(cardId: string, index: number): Promise<Quot
 }
 
 export async function recordGuess(
-  cardId: string, index: number, playerId: string, guess: string,
+  cardId: string, index: number, playerId: string, guess: string, row: number, col: number,
 ): Promise<'ok' | 'too_late' | 'unknown_quote'> {
   try {
     await ddb.send(new UpdateCommand({
@@ -233,7 +237,7 @@ export async function recordGuess(
       UpdateExpression: 'SET guesses.#pid = :g',
       ConditionExpression: 'attribute_exists(SK) AND revealed = :false',
       ExpressionAttributeNames: { '#pid': playerId },
-      ExpressionAttributeValues: { ':g': guess, ':false': false },
+      ExpressionAttributeValues: { ':g': { guess, row, col }, ':false': false },
     }));
     return 'ok';
   } catch (err) {
@@ -244,6 +248,46 @@ export async function recordGuess(
     }
     throw err;
   }
+}
+
+/**
+ * Find a 5-in-a-row (horizontal, vertical, or diagonal) inside a set of locked cells.
+ * Returns the 5 coords forming the line, or null if no bingo yet.
+ * Earliest-found line wins (rows → cols → \-diag → /-diag, top-left to bottom-right).
+ */
+export function findBingo(
+  cells: Array<[number, number]>,
+  size = 7,
+  runLen = 5,
+): Array<[number, number]> | null {
+  const has = new Set(cells.map(([r, c]) => `${r},${c}`));
+  const get = (r: number, c: number) => has.has(`${r},${c}`);
+  const tryLine = (r0: number, c0: number, dr: number, dc: number): Array<[number, number]> | null => {
+    const line: Array<[number, number]> = [];
+    for (let k = 0; k < runLen; k++) {
+      const r = r0 + dr * k, c = c0 + dc * k;
+      if (!get(r, c)) return null;
+      line.push([r, c]);
+    }
+    return line;
+  };
+  // Rows
+  for (let r = 0; r < size; r++) for (let c = 0; c <= size - runLen; c++) {
+    const line = tryLine(r, c, 0, 1); if (line) return line;
+  }
+  // Columns
+  for (let c = 0; c < size; c++) for (let r = 0; r <= size - runLen; r++) {
+    const line = tryLine(r, c, 1, 0); if (line) return line;
+  }
+  // \-diagonals
+  for (let r = 0; r <= size - runLen; r++) for (let c = 0; c <= size - runLen; c++) {
+    const line = tryLine(r, c, 1, 1); if (line) return line;
+  }
+  // /-diagonals
+  for (let r = 0; r <= size - runLen; r++) for (let c = runLen - 1; c < size; c++) {
+    const line = tryLine(r, c, 1, -1); if (line) return line;
+  }
+  return null;
 }
 
 export async function markRevealed(

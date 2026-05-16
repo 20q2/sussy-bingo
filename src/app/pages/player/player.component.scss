@@ -432,6 +432,78 @@
     transform: scale(1) rotate(0deg);
   }
 }
+
+/* ===== Bingo win banner ===== */
+.bingo-banner {
+  padding: 1.4rem 1.25rem 1.2rem;
+  margin: 1rem 0;
+  text-align: center;
+  /* Pops in after the reveal banner has had time to play */
+  animation: bingo-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 1100ms backwards;
+}
+.bingo-banner.mine {
+  background: var(--accent-yellow);
+  animation:
+    bingo-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 1100ms backwards,
+    bingo-shimmer 1.2s ease-in-out 1700ms infinite;
+}
+.bingo-headline {
+  font-family: 'Permanent Marker', 'Beleren', cursive;
+  font-size: 2.8rem;
+  line-height: 1;
+  color: var(--ink);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.15);
+}
+.bingo-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 0.5rem;
+}
+.bingo-winners {
+  list-style: none;
+  padding: 0;
+  margin: 0.9rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.bingo-winners li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--tile);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem 0.2rem 0.25rem;
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: 0 2px 0 var(--ink);
+}
+.bingo-winners ::ng-deep .avatar.size-sm { width: 24px; height: 24px; outline: 2px solid var(--ink); outline-offset: -2px; }
+@keyframes bingo-pop {
+  0%   { transform: scale(0.5) rotate(-6deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(2deg);  opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes bingo-shimmer {
+  0%, 100% { box-shadow: 0 6px 0 var(--ink), 0 0 0 0 rgba(255, 209, 102, 0); }
+  50%      { box-shadow: 0 6px 0 var(--ink), 0 0 0 14px rgba(255, 209, 102, 0.5); }
+}
+
+/* Bingo winning-line highlight: cells on my winning row/col/diag get a yellow glow */
+.cell.winning-line {
+  box-shadow: 0 4px 0 var(--ink), 0 0 0 4px var(--accent-yellow);
+  z-index: 2;
+  animation: winline-pulse 1.4s ease-in-out infinite;
+}
+@keyframes winline-pulse {
+  0%, 100% { box-shadow: 0 4px 0 var(--ink), 0 0 0 4px var(--accent-yellow); }
+  50%      { box-shadow: 0 4px 0 var(--ink), 0 0 0 7px rgba(255, 209, 102, 0.85); }
+}
 @media (prefers-reduced-motion: reduce) {
   .placements .dropped { animation: none; }
 }
