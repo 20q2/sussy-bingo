@@ -81,14 +81,22 @@ export class GameStateService {
           this.subject.next({ ...s, yourGuess: null });
         }
         return;
-      case 'reveal':
+      case 'reveal': {
+        // Wrong guessers' chips clear off the board on reveal; correct guessers' chips stay.
+        const correctIds = new Set(msg.perPlayer.filter(p => p.correct).map(p => p.playerId));
+        const keptPlacements: Record<string, CellPlacement> = {};
+        for (const pid of Object.keys(s.placements)) {
+          if (correctIds.has(pid)) keptPlacements[pid] = s.placements[pid];
+        }
         this.subject.next({
           ...s,
           leaderboard: msg.leaderboard,
           lastReveal: { index: msg.index, truth: msg.truth, perPlayer: msg.perPlayer },
+          placements: keptPlacements,
           me: s.me ? { ...s.me, score: msg.leaderboard.find(l => l.playerId === s.me!.playerId)?.score ?? s.me.score } : s.me,
         });
         return;
+      }
       case 'returned_to_lobby':
         this.subject.next({ ...s, phase: 'lobby', card: null, currentQuote: null, yourGuess: null, lastReveal: null, players: msg.players, leaderboard: [], placements: {} });
         return;

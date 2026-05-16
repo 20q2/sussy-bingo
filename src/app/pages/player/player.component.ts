@@ -85,16 +85,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.highlightedName = null;
       }
 
-      // On a fresh reveal, freeze the current pick into a permanent mark.
+      // On a fresh reveal, freeze a CORRECT pick into a permanent green mark.
+      // Wrong picks leave no trace — the chip clears and the cell stays
+      // tappable for a future round.
       if (s.lastReveal && s.lastReveal.index !== this.lastSeenRevealIndex) {
         this.lastSeenRevealIndex = s.lastReveal.index;
         if (this.currentPick && s.card) {
           const pickedName = s.card[this.currentPick.row]?.[this.currentPick.col];
-          const correct = pickedName === s.lastReveal.truth;
-          this.cellMarks.set(
-            `${this.currentPick.row},${this.currentPick.col}`,
-            correct ? 'correct' : 'incorrect',
-          );
+          if (pickedName === s.lastReveal.truth) {
+            this.cellMarks.set(`${this.currentPick.row},${this.currentPick.col}`, 'correct');
+          }
         }
       }
     }));
