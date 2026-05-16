@@ -141,6 +141,23 @@ export function generateCard(
     for (let c = 0; c < width; c++) row.push(pickOne());
     grid.push(row);
   }
+
+  const present = new Set(grid.flat());
+  const missing = weights.filter(w => w.weight > 0 && !present.has(w.name)).map(w => w.name);
+  for (const name of missing) {
+    const counts: Record<string, number> = {};
+    for (const n of grid.flat()) counts[n] = (counts[n] ?? 0) + 1;
+    const candidates: [number, number][] = [];
+    for (let r = 0; r < height; r++) {
+      for (let c = 0; c < width; c++) {
+        if (counts[grid[r][c]] > 1) candidates.push([r, c]);
+      }
+    }
+    if (candidates.length === 0) break;
+    const [r, c] = candidates[Math.floor(rand() * candidates.length)];
+    grid[r][c] = name;
+  }
+
   return grid;
 }
 

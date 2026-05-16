@@ -65,7 +65,13 @@
                 [class.is-truth]="state.lastReveal?.truth === name && state.lastReveal?.index === state.currentQuote?.index"
                 [class.highlighted]="highlightedName === name"
                 (click)="onSquareTap(rIdx, cIdx, name)">
-          {{ name }}
+          <span class="cell-name">{{ name }}</span>
+          <span class="placements">
+            <app-token-avatar class="dropped"
+              *ngFor="let p of placementsAt(rIdx, cIdx); trackBy: trackPlacement"
+              [tokenId]="p.tokenId"
+              size="sm"></app-token-avatar>
+          </span>
         </button>
       </div>
     </div>

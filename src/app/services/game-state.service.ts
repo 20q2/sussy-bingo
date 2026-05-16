@@ -11,6 +11,7 @@ export interface LastReveal {
   perPlayer: { playerId: string; name: string; guess: string | null; correct: boolean }[];
 }
 
+export interface CellPlacement { row: number; col: number; }
 export interface GameState {
   phase: Phase | 'unknown';
   me: MyInfo | null;
@@ -20,11 +21,13 @@ export interface GameState {
   currentQuote: CurrentQuote | null;
   yourGuess: string | null;
   lastReveal: LastReveal | null;
+  /** Where each player has dropped a token for the current quote, keyed by playerId. Cleared on each new quote. */
+  placements: Record<string, CellPlacement>;
 }
 
 const initial: GameState = {
   phase: 'unknown', me: null, card: null, players: [], leaderboard: [],
-  currentQuote: null, yourGuess: null, lastReveal: null,
+  currentQuote: null, yourGuess: null, lastReveal: null, placements: {},
 };
 
 @Injectable({ providedIn: 'root' })
@@ -55,14 +58,22 @@ export class GameStateService {
         this.subject.next({ ...s, players: msg.players });
         return;
       case 'card_started':
-        this.subject.next({ ...s, phase: 'live', leaderboard: msg.leaderboard, card: msg.card, currentQuote: null, yourGuess: null, lastReveal: null });
+        this.subject.next({ ...s, phase: 'live', leaderboard: msg.leaderboard, card: msg.card, currentQuote: null, yourGuess: null, lastReveal: null, placements: {} });
         return;
       case 'quote':
-        this.subject.next({ ...s, currentQuote: { index: msg.index, quote: msg.quote, possibleAnswers: msg.possibleAnswers }, yourGuess: null, lastReveal: null });
+        this.subject.next({ ...s, currentQuote: { index: msg.index, quote: msg.quote, possibleAnswers: msg.possibleAnswers }, yourGuess: null, lastReveal: null, placements: {} });
         return;
       case 'guess_ack':
         if (s.currentQuote?.index === msg.quoteIndex) {
           this.subject.next({ ...s, yourGuess: msg.guess });
+        }
+        return;
+      case 'guess_placed':
+        if (s.currentQuote?.index === msg.quoteIndex) {
+          this.subject.next({
+            ...s,
+            placements: { ...s.placements, [msg.playerId]: { row: msg.row, col: msg.col } },
+          });
         }
         return;
       case 'guess_rejected':
@@ -79,7 +90,7 @@ export class GameStateService {
         });
         return;
       case 'returned_to_lobby':
-        this.subject.next({ ...s, phase: 'lobby', card: null, currentQuote: null, yourGuess: null, lastReveal: null, players: msg.players, leaderboard: [] });
+        this.subject.next({ ...s, phase: 'lobby', card: null, currentQuote: null, yourGuess: null, lastReveal: null, players: msg.players, leaderboard: [], placements: {} });
         return;
       case 'pick_rejected':
         console.warn('pick rejected:', msg.reason);

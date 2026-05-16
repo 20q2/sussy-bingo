@@ -9,7 +9,7 @@ export type ClientMessage =
   | { type: 'host_hello' }
   | { type: 'start_card'; weights: NameWeight[] }
   | { type: 'next_quote'; quote: string; possibleAnswers: string[] }
-  | { type: 'guess'; quoteIndex: number; guess: string }
+  | { type: 'guess'; quoteIndex: number; guess: string; row: number; col: number }
   | { type: 'reveal'; truth: string }
   | { type: 'end_game' }
   | { type: 'pick_token'; tokenId: string | null }
@@ -27,6 +27,7 @@ export type ServerMessage =
   | { type: 'card_started'; cardId: string; leaderboard: LeaderboardEntry[]; card: string[][] }
   | { type: 'quote'; index: number; quote: string; possibleAnswers: string[] }
   | { type: 'guess_ack'; quoteIndex: number; guess: string }
+  | { type: 'guess_placed'; quoteIndex: number; playerId: string; row: number; col: number }
   | { type: 'guess_rejected'; quoteIndex: number; reason: 'too_late' | 'unknown_quote' | 'not_a_player' }
   | { type: 'reveal'; index: number; truth: string;
       perPlayer: { playerId: string; name: string; guess: string | null; correct: boolean }[];

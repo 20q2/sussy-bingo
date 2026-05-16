@@ -50,7 +50,33 @@ describe('generateCard', () => {
     );
     expect(grid.length).toBe(5);
     expect(grid[0].length).toBe(5);
-    expect(grid.flat().every(name => name === 'A')).toBe(true);
+    // Every name with positive weight must appear at least once, even when
+    // the RNG would otherwise have rolled only 'A'.
+    expect(grid.flat()).toContain('A');
+    expect(grid.flat()).toContain('B');
+  });
+
+  it('guarantees each weighted name appears at least once', () => {
+    const weights = [
+      { name: 'A', weight: 100 },
+      { name: 'B', weight: 1 },
+      { name: 'C', weight: 1 },
+      { name: 'D', weight: 1 },
+      { name: 'E', weight: 1 },
+    ];
+    // Heavily biased RNG that would normally fill the card with 'A'.
+    const grid = generateCard(weights, 5, 5, () => 0);
+    const flat = grid.flat();
+    for (const { name } of weights) expect(flat).toContain(name);
+  });
+
+  it('skips names that cannot fit when there are more names than cells', () => {
+    const weights = Array.from({ length: 10 }, (_, i) => ({ name: `N${i}`, weight: 1 }));
+    const grid = generateCard(weights, 2, 2, () => 0);
+    expect(grid.flat().length).toBe(4);
+    // All cells should still be filled with valid names from the weights list.
+    const valid = new Set(weights.map(w => w.name));
+    expect(grid.flat().every(n => valid.has(n))).toBe(true);
   });
 });
 

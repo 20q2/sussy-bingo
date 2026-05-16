@@ -99,8 +99,21 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.state.lastReveal && this.state.lastReveal.index === this.state.currentQuote.index) return;
     if (this.cellMarks.has(`${row},${col}`)) return;
     this.currentPick = { row, col };
-    this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name });
+    this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name, row, col });
   }
+
+  placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null }> {
+    const out: Array<{ playerId: string; tokenId: string | null }> = [];
+    for (const playerId of Object.keys(this.state.placements ?? {})) {
+      const pos = this.state.placements[playerId];
+      if (pos.row !== row || pos.col !== col) continue;
+      const tokenId = this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
+      out.push({ playerId, tokenId });
+    }
+    return out;
+  }
+
+  trackPlacement(_: number, p: { playerId: string }): string { return p.playerId; }
 
   markFor(row: number, col: number): 'correct' | 'incorrect' | null {
     return this.cellMarks.get(`${row},${col}`) ?? null;
