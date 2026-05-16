@@ -43,7 +43,10 @@
 
   <ng-container *ngIf="!needsName && state.phase === 'live' && state.card">
     <div class="quote-area sb-card" *ngIf="state.currentQuote">
-      <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
+      <div class="quote-header">
+        <div class="quote-index">Quote #{{ state.currentQuote.index }}</div>
+        <div class="quote-hint">Tap name to filter</div>
+      </div>
       <blockquote>"{{ state.currentQuote.quote }}"</blockquote>
       <div class="possibles">
         <button type="button"
@@ -85,9 +88,5 @@
       <div class="reveal-truth">It was <strong>{{ state.lastReveal.truth }}</strong></div>
     </div>
 
-    <div class="score-bar">
-      <span class="score-label">Your score</span>
-      <span class="score-value">{{ state.me?.score ?? 0 }}</span>
-    </div>
   </ng-container>
 </div>
