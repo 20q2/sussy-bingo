@@ -22,6 +22,10 @@ export class StatsComponent implements OnInit {
   rejectedUnknownAuthor = 0;   // regex matched but the author didn't resolve
   people: PersonStat[] = [];
   rawTextLength = 0;
+  /** Rows dropped because the author string didn't map to any canonical name. */
+  badAuthorRows: Array<{ rawName: string; quote: string }> = [];
+  /** Aggregated count of dropped rows by raw author string, for a quick "who keeps showing up?" view. */
+  badAuthorCounts: Array<{ rawName: string; count: number }> = [];
 
   constructor(private ingest: QuoteIngestService) {}
 
@@ -36,15 +40,24 @@ export class StatsComponent implements OnInit {
     this.totalRawQuotes = matches.length;
 
     const kept: IngestQuote[] = [];
+    const badAuthorTally = new Map<string, number>();
     for (const m of matches) {
       const rawName = m[2].trim();
-      const canonical = this.ingest.canonicalize(rawName);
-      if (!canonical) { this.rejectedUnknownAuthor++; continue; }
       const cleaned = m[1].replace(/^[“"]+|[”"]+$/g, '').trim();
+      const canonical = this.ingest.canonicalize(rawName);
+      if (!canonical) {
+        this.rejectedUnknownAuthor++;
+        this.badAuthorRows.push({ rawName, quote: cleaned });
+        badAuthorTally.set(rawName, (badAuthorTally.get(rawName) ?? 0) + 1);
+        continue;
+      }
       if (!this.isPlayable(cleaned)) { this.filteredOut++; continue; }
       kept.push({ quote: cleaned, rawName, canonicalName: canonical });
     }
     this.totalQuotes = kept.length;
+    this.badAuthorCounts = [...badAuthorTally.entries()]
+      .map(([rawName, count]) => ({ rawName, count }))
+      .sort((a, b) => b.count - a.count);
 
     // Group by canonical name
     const byCanon = new Map<string, IngestQuote[]>();

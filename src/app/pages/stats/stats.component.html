@@ -47,6 +47,38 @@
       </table>
     </section>
 
+    <section class="bad-authors sb-card" *ngIf="badAuthorRows.length">
+      <h2 class="title">Dropped — bad author ({{ badAuthorRows.length }})</h2>
+      <p class="muted">Regex matched but the author string didn't resolve to a canonical nickname. Add an alias to <code>nickNameMap</code> in <code>quote-ingest.service.ts</code> to rescue these.</p>
+
+      <h3 class="subtitle">Tally</h3>
+      <table class="bad-tally">
+        <thead>
+          <tr>
+            <th class="raw">raw author</th>
+            <th class="count">count</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of badAuthorCounts">
+            <td class="raw"><code>{{ row.rawName }}</code></td>
+            <td class="count num">{{ row.count }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="subtitle">Every dropped row</h3>
+      <details>
+        <summary>Show all {{ badAuthorRows.length }} dropped quotes</summary>
+        <ul class="bad-list">
+          <li *ngFor="let row of badAuthorRows">
+            <code class="raw">{{ row.rawName }}</code>
+            <span class="dropped-quote">"{{ row.quote }}"</span>
+          </li>
+        </ul>
+      </details>
+    </section>
+
     <section class="samples sb-card">
       <h2 class="title">Sample quotes per person</h2>
       <details *ngFor="let p of people">
