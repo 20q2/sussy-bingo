@@ -64,6 +64,10 @@ export class HostComponent implements OnInit, OnDestroy {
 
   endGame(): void { this.ws.send({ type: 'end_game' }); }
 
+  tokenIdFor(playerId: string): string | null {
+    return this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
+  }
+
   private pickUnusedQuote(): IngestQuote | null {
     const remaining = this.quotes.filter((_, i) => !this.quotesUsed.has(i));
     if (!remaining.length) return null;

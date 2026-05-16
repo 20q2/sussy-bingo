@@ -25,7 +25,10 @@
           <p class="lobby-sub">{{ state.players.length }} {{ state.players.length === 1 ? 'player has' : 'players have' }} joined</p>
         </div>
         <ul class="player-tiles">
-          <li *ngFor="let p of state.players" class="player-tile">{{ p.name }}</li>
+          <li *ngFor="let p of state.players" class="player-tile">
+            <app-token-avatar [tokenId]="p.tokenId" size="md"></app-token-avatar>
+            <span class="player-tile-name">{{ p.name }}</span>
+          </li>
           <li *ngIf="!state.players.length" class="placeholder">Open <strong>/play</strong> on your phone to join…</li>
         </ul>
         <div class="lobby-actions">
@@ -43,7 +46,15 @@
             <li *ngFor="let a of state.currentQuote.possibleAnswers" class="answer-chip">{{ a }}</li>
           </ul>
           <div *ngIf="state.lastReveal && state.lastReveal.index === state.currentQuote.index" class="truth-banner">
-            The truth: <strong>{{ state.lastReveal.truth }}</strong>
+            <div class="truth-line">The truth: <strong>{{ state.lastReveal.truth }}</strong></div>
+            <ul class="reveal-rows">
+              <li *ngFor="let row of state.lastReveal.perPlayer" class="reveal-row" [class.correct]="row.correct">
+                <app-token-avatar [tokenId]="tokenIdFor(row.playerId)" size="sm"></app-token-avatar>
+                <span class="reveal-name">{{ row.name }}</span>
+                <span class="reveal-guess">{{ row.guess ?? '—' }}</span>
+                <span class="reveal-mark">{{ row.correct ? '✅' : '❌' }}</span>
+              </li>
+            </ul>
           </div>
         </ng-container>
         <ng-template #noQuote>
@@ -67,6 +78,7 @@
       <ol class="leaderboard-list">
         <li *ngFor="let row of state.leaderboard; let i = index" class="leaderboard-row" [class.first]="i === 0">
           <span class="rank">{{ i + 1 }}</span>
+          <app-token-avatar [tokenId]="tokenIdFor(row.playerId)" size="sm"></app-token-avatar>
           <span class="name">{{ row.name }}</span>
           <span class="score">{{ row.score }}</span>
         </li>
