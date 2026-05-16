@@ -28,6 +28,9 @@
   min-width: 0;
   cursor: pointer;
   transition: transform 80ms ease;
+  /* Gentle idle bob — feels alive while the host is dithering. Per-tile
+     duration + delay below scrambles the phase so they don't all sync up. */
+  animation: token-bob 2.6s ease-in-out infinite;
 
   &:active { transform: translateY(2px); }
 
@@ -61,6 +64,18 @@
   85%  { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
+/* Subtle 4px bob, paired with per-tile duration/delay below for variety */
+@keyframes token-bob {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -4px; }
+}
+.token-tile:nth-child(7n+1) { animation-delay:    0ms; animation-duration: 2.6s;  }
+.token-tile:nth-child(7n+2) { animation-delay:  220ms; animation-duration: 2.15s; }
+.token-tile:nth-child(7n+3) { animation-delay:  370ms; animation-duration: 2.9s;  }
+.token-tile:nth-child(7n+4) { animation-delay:  110ms; animation-duration: 2.35s; }
+.token-tile:nth-child(7n+5) { animation-delay:  290ms; animation-duration: 2.75s; }
+.token-tile:nth-child(7n+6) { animation-delay:   60ms; animation-duration: 2.5s;  }
+.token-tile:nth-child(7n+7) { animation-delay:  430ms; animation-duration: 2.2s;  }
 
 .token-name {
   margin-top: 6px;
