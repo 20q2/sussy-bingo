@@ -15,16 +15,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
   needsName = false;
   nameInput = '';
   backgroundUrl = '';
-  /** Cell the player tapped for the current open quote, or null if untapped. */
+  /** Cell the player tapped for the current open quote, or null if untapped.
+   *  Used only for optimistic local feedback before the server echoes the
+   *  guess back via `guess_placed`; the source of truth on rejoin is
+   *  `state.placements[me.playerId]`. */
   currentPick: { row: number; col: number } | null = null;
-  /** Permanent per-cell outcome history keyed by "r,c". */
-  cellMarks = new Map<string, 'correct' | 'incorrect'>();
-  /** Past correct placements by OTHER players, kept as ghost chips on this card.
-   *  Key: "playerId@row,col" — a player can have multiple sticky chips across rounds. */
-  stickyCorrect = new Map<string, { playerId: string; row: number; col: number }>();
   /** Name from the quote's possible-answer chips the player tapped to spotlight on the board. */
   highlightedName: string | null = null;
-  private lastSeenRevealIndex: number | null = null;
+  /** Number of Reveal power-up charges remaining this session. Resets on reload. */
+  revealsRemaining = 2;
+  /** True for the duration of the current quote round if the player used a Reveal. */
+  revealActive = false;
   private lastSeenQuoteIndex: number | null = null;
   private sub = new Subscription();
   private static readonly LANDS = ['forest', 'island', 'mountain', 'plains', 'swamp'];
@@ -73,45 +74,28 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.nameInput = '';
       }
 
-      // Reset cell marks whenever a fresh card arrives (new game / new round).
+      // Reset transient UI when a fresh card arrives (new game / new round).
+      // The green-cells / sticky-tokens history now lives in state.lockedCells,
+      // which the GameStateService clears on card_started and rehydrates on
+      // joined — no local maps to reset.
       if (s.card !== wasCard) {
-        this.cellMarks.clear();
-        this.stickyCorrect.clear();
         this.currentPick = null;
         this.lastSeenQuoteIndex = null;
-        this.lastSeenRevealIndex = null;
       }
 
       // Clear the pending pick and any highlight when the host moves to a new quote.
+      // Also clear the Reveal power-up's per-round effect.
       if (s.currentQuote && s.currentQuote.index !== this.lastSeenQuoteIndex) {
         this.lastSeenQuoteIndex = s.currentQuote.index;
         this.currentPick = null;
         this.highlightedName = null;
+        this.revealActive = false;
       }
-
-      // On a fresh reveal, freeze a CORRECT pick into a permanent green mark.
-      // Wrong picks leave no trace — the chip clears and the cell stays
-      // tappable for a future round.
-      if (s.lastReveal && s.lastReveal.index !== this.lastSeenRevealIndex) {
-        this.lastSeenRevealIndex = s.lastReveal.index;
-        if (this.currentPick && s.card) {
-          const pickedName = s.card[this.currentPick.row]?.[this.currentPick.col];
-          if (pickedName === s.lastReveal.truth) {
-            this.cellMarks.set(`${this.currentPick.row},${this.currentPick.col}`, 'correct');
-          }
-        }
-        // Snapshot every OTHER player's correct placement so their chip
-        // lingers on my board at reduced opacity even after the round ends.
-        for (const p of s.lastReveal.perPlayer) {
-          if (!p.correct) continue;
-          if (p.playerId === s.me?.playerId) continue;
-          const placement = s.placements?.[p.playerId];
-          if (!placement) continue;
-          this.stickyCorrect.set(
-            `${p.playerId}@${placement.row},${placement.col}`,
-            { playerId: p.playerId, row: placement.row, col: placement.col },
-          );
-        }
+      // Once the host reveals the answer for the current quote, the Reveal
+      // power-up effect is moot (everyone is visible anyway). Clear it so the
+      // button can be re-enabled cleanly on the next round without flicker.
+      if (s.lastReveal && s.currentQuote && s.lastReveal.index === s.currentQuote.index) {
+        this.revealActive = false;
       }
     }));
   }
@@ -126,9 +110,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.state.bingoWinners?.length) return; // game decided — board frozen
     if (!this.state.currentQuote) return;
     if (this.state.lastReveal && this.state.lastReveal.index === this.state.currentQuote.index) return;
-    if (this.cellMarks.has(`${row},${col}`)) return;
+    if (this.isLockedForMe(row, col)) return;
     this.currentPick = { row, col };
     this.ws.send({ type: 'guess', quoteIndex: this.state.currentQuote.index, guess: name, row, col });
+  }
+
+  private isLockedForMe(row: number, col: number): boolean {
+    const meId = this.state.me?.playerId;
+    if (!meId) return false;
+    const mine = this.state.lockedCells[meId];
+    return !!mine && mine.some(([r, c]) => r === row && c === col);
   }
 
   /** True if I'm one of the bingo co-winners. */
@@ -153,23 +144,28 @@ export class PlayerComponent implements OnInit, OnDestroy {
   placementsAt(row: number, col: number): Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number; sticky: boolean }> {
     const out: Array<{ playerId: string; tokenId: string | null; ox: number; oy: number; rot: number; sticky: boolean }> = [];
     const seen = new Set<string>();
+    const meId = this.state.me?.playerId ?? null;
+    const showOthersLive = this.isRevealed || this.revealActive;
     // Live placements first (full opacity).
     for (const playerId of Object.keys(this.state.placements ?? {})) {
       const pos = this.state.placements[playerId];
       if (pos.row !== row || pos.col !== col) continue;
+      if (playerId !== meId && !showOthersLive) continue;
       seen.add(playerId);
       const tokenId = this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
       const scatter = this.chipScatter(playerId, row, col);
       out.push({ playerId, tokenId, ...scatter, sticky: false });
     }
-    // Sticky chips from past correct rounds (reduced opacity), skipping any
+    // Sticky chips from past correct rounds (reduced opacity), skipping me
+    // (my correct cells show as green squares, not as my own token) and any
     // player who already has a live chip at this cell to avoid double-rendering.
-    for (const entry of this.stickyCorrect.values()) {
-      if (entry.row !== row || entry.col !== col) continue;
-      if (seen.has(entry.playerId)) continue;
-      const tokenId = this.state.players.find(p => p.playerId === entry.playerId)?.tokenId ?? null;
-      const scatter = this.chipScatter(entry.playerId, row, col);
-      out.push({ playerId: entry.playerId, tokenId, ...scatter, sticky: true });
+    for (const [playerId, cells] of Object.entries(this.state.lockedCells)) {
+      if (playerId === meId) continue;
+      if (seen.has(playerId)) continue;
+      if (!cells.some(([r, c]) => r === row && c === col)) continue;
+      const tokenId = this.state.players.find(p => p.playerId === playerId)?.tokenId ?? null;
+      const scatter = this.chipScatter(playerId, row, col);
+      out.push({ playerId, tokenId, ...scatter, sticky: true });
     }
     return out;
   }
@@ -215,15 +211,35 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   markFor(row: number, col: number): 'correct' | 'incorrect' | null {
-    return this.cellMarks.get(`${row},${col}`) ?? null;
+    return this.isLockedForMe(row, col) ? 'correct' : null;
   }
 
   isCurrentPick(row: number, col: number): boolean {
-    return this.currentPick?.row === row && this.currentPick?.col === col;
+    if (this.currentPick?.row === row && this.currentPick?.col === col) return true;
+    const meId = this.state.me?.playerId;
+    if (!meId) return false;
+    const placement = this.state.placements[meId];
+    return !!placement && placement.row === row && placement.col === col;
   }
 
   onChipTap(name: string): void {
     this.highlightedName = this.highlightedName === name ? null : name;
+  }
+
+  /** True if the player can currently activate a Reveal: has charges, hasn't
+   *  already revealed this round, and the host hasn't already revealed. */
+  get canUseReveal(): boolean {
+    return this.revealsRemaining > 0
+      && !this.revealActive
+      && !this.isRevealed
+      && this.state.phase === 'live'
+      && !this.state.bingoWinners?.length;
+  }
+
+  useReveal(): void {
+    if (!this.canUseReveal) return;
+    this.revealsRemaining--;
+    this.revealActive = true;
   }
 
   onPickToken(tokenId: string | null): void {

@@ -105,6 +105,22 @@
       </div>
     </div>
 
+    <div class="reveal-footer">
+      <button type="button"
+              class="reveal-btn"
+              [class.disabled]="!canUseReveal"
+              [class.active]="revealActive"
+              [attr.aria-disabled]="!canUseReveal"
+              (click)="useReveal()">
+        <span class="reveal-eye" aria-hidden="true">👁</span>
+        <span class="reveal-label">
+          <ng-container *ngIf="revealActive">Revealed</ng-container>
+          <ng-container *ngIf="!revealActive">Reveal</ng-container>
+        </span>
+        <span class="reveal-count">{{ revealsRemaining }}</span>
+      </button>
+    </div>
+
     <div *ngIf="state.lastReveal && !state.bingoWinners?.length" class="reveal-banner"
          [class.win]="state.lastReveal.truth === state.yourGuess"
          [class.lose]="state.lastReveal.truth !== state.yourGuess && state.yourGuess">
